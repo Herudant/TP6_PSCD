@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     	if(socket_fd == -1){
     	    this_thread::sleep_for(chrono::seconds(1));
     	}
-			
+
     } while(socket_fd == -1 && count < MAX_ATTEMPS);
 
     // Chequeamos si se ha realizado la conexión
@@ -75,25 +75,8 @@ int main(int argc, char *argv[]) {
 		mensaje = "";
 		cout << "Nueva peticion (para salir escriba 'END OF SERVICE')\n";
 
-
-		// Tipo de valla
-		do{
-			cout << "Tipo de valla(principal/secundaria): " ;
-			getline(cin,valla);
-
-			if ( valla == MENS_FIN) {
-				fin = true;
-				break;
-			}
-
-		}while(valla != "principal" && valla != "secundaria");
-
-		mensaje = mensaje + valla + ";";
-
-
 		// Tiempo
 		if (!fin){
-
 			cout << "Tiempo: ";
 			getline(cin,tiempo);
 
