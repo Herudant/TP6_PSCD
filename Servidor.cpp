@@ -1,7 +1,7 @@
 //******************************************************************
 // File:   Servidor.cpp
-// Author: 
-// Date:   
+// Author:
+// Date:
 // Coms:   Ejemplo de servidor multicliente con comunicación síncrona mediante sockets
 //         Compilar el fichero "Makefile" asociado, mediante "make".
 //*****************************************************************
@@ -43,8 +43,10 @@ list<string> decodificar(string mensaje, const char separador){
 
 //-------------------------------------------------------------
 void servCliente(Socket& soc, int client_fd, Vuelo& vuelo) {
-	char MENS_FIN[]="END OF SERVICE";
+
 	// Buffer para recibir el mensaje
+  char MENS_FIN[]="END OF SERVICE";
+
 	int length = 100;
 	char buffer[length];
 	bool out = false; // Inicialmente no salir del bucle
