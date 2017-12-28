@@ -109,7 +109,7 @@ int main(int argc, char* argv[]){
 			exit(1);
 	}
 
-	// se captura la señal de cierre para evitar que termine con ctrl + c.
+	// se captura la s./eñal de cierre para evitar que termine con ctrl + c.
 	signal(SIGINT, handler);
 
 	Vuelo vuelo;
