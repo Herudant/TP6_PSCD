@@ -108,8 +108,9 @@ int main(int argc, char* argv[]){
 			cerr << "Parámetros mal introducidos: <puerto Servidor>" << endl;
 			exit(1);
 	}
+  
 	// se captura la señal de cierre para evitar que termine con ctrl + c.
-	//signal(SIGINT, handler);
+	signal(SIGINT, handler);
 
 	Vuelo vuelo;
 	// Dirección y número donde escucha el proceso servidor
