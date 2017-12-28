@@ -19,23 +19,30 @@
 using namespace std;
 
 const int MAXNUM = 20;
-const int COSTE = 1;
-
 
 class Valla {
 
 	public:
 		Valla();
-		void mostrar(const string img);
-		void solicitar(const string img,const int tmp,
-									int& costeOp, time_t& horaEspera);
+		void mostrar(string& rutaImg, int& tiempoImg);
+		void solicitar(const string img,const int tmp);
 		void datosImagen(string& img,int& tmp);
 		void avisar(int tmp);
+		int getNum_peticiones();
+		int getNum_imagenes();
+		int getTiempo_estimado();
+		time_t getTiempo_total();
+		time_t getTiempo_imagenes_mostradas();
+
 
 	private:
 		mutex mtx;
-		queue<tuple<string, int>> peticiones;
+		queue<tuple<string, int>> peticiones;	// cola con tuplas {img, tiempo}
 		time_t tiempoEspera;
+		int num_peticiones;
+		int num_imagenes;
+		time_t tiempo_total;
+		time_t tiempo_imagenes_mostradas;
 
 		condition_variable esperaImg;
 

@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string>
 #include <signal.h>
+#include <atomic>
 
 #include "valla.h"
 
@@ -25,7 +26,7 @@ using namespace std;
 
 
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
-
+const int MAX_SUBASTAS = 2;
 const int _WIDTH = 800;
 const int _HEIGHT = 800;
 const int SECUNDARIA_WIDTH = 800;
@@ -35,6 +36,7 @@ const int NUMVALLASEC = 2;
 VallaSecundaria serv_secundario;
 Valla serv_;
 
+atomic<bool> FIN_SERVICIO = false;
 
 
 void imprImg(const string ruta,
@@ -163,11 +165,11 @@ void gestor_valla() {
 	int tiempo;
 	string URL;
 	ImageDownloader downloader;
-	char ruta[100] = "imgs/imagePral.jpg";
+	char ruta[100] = "../imgs/imagePral.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
 	// VALLA
-	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
 	cimg_library::CImgDisplay valla_(img_.resize(_WIDTH, SECUNDARIA_WIDTH),"VALLA ");
 	valla_.resize(_WIDTH, SECUNDARIA_WIDTH);
 	valla_.move(0, 0); // Esquina superior izquierda
@@ -274,7 +276,6 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 						buffer = recv_msg(client_fd, ref(socket));
 						valla.solicitar(buffer, subasta.getTiempo_espera());
 					}
-
 				}
 		}
 	}
@@ -296,7 +297,7 @@ void avisarFin(int socket_fd, Socket& socket){
 		if (mensaje == "END OF SERVICE"){
 			int error_code = socket.Close(socket_fd);
 			if(error_code == -1)
-				cerr << "Error cerrando el socket del servidor: " << strerror(errno) << endl;
+				cerr << "Error cerrando el socket: " << strerror(errno) << endl;
 
 			// Mensaje de despedida
 			cout << "Bye bye" << endl;
@@ -306,7 +307,21 @@ void avisarFin(int socket_fd, Socket& socket){
 }
 
 void administrador(Subasta& subasta, Valla& valla){
+	while(subasta.getNum_subastas() != MAX_SUBASTAS){
+		time_t tiempo_total, tiempo_contratado, tiempo_imagenes;
+		int num_peticiones, num_imagenes;
+		// Mostrar información histórica del sistema (num imagenes y tiempo)
+		tiempo_imagenes = valla.getTiempo_imagenes_mostradas();
+		num_imaenes = valla.getNum_imagenes();
 
+		// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
+		num_peticiones = valla.getNum_peticiones();
+		tiempo_contratado = valla.getTiempo_estimado();
+		tiempo_total = valla.getTiempo_total();
+
+	}
+
+	// Iniciar la terminación ordenada del servicio
 }
 
 void subastador(Subasta& subasta){
