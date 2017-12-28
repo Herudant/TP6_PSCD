@@ -45,7 +45,7 @@ void crearImg(const string ruta,
 void vallaral();
 void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla);
 void subastador(Subasta& subasta);
-void administrador(int socket_fd, Socket& socket, Subasta& subasta);
+void avisarFin(int socket_fd, Socket& socket, Subasta& subasta);
 void handler(int n){
 	signal(SIGINT, handler);
 	cout << "Para salir escribe 'END OF SERVICE' \n";
@@ -97,14 +97,17 @@ int main(int argc, char *argv[]) {
 	thread valla(&gestor_valla);
 	valla.detach();
 
-	// Lanzamos el thread administrador
-	thread p(&administrador,socket_fd, ref(socket), ref(subasta));
+	// Lanzamos el thread avisarFin
+	thread p(&avisarFin,socket_fd, ref(socket), ref(subasta));
 	p.detach();
 
 	// Lanzar thread subasta
-
 	thread subastador(&subastador, ref(subasta));
 	subastador.detach();
+
+	// Lanzar thread administrador
+	thread administrador(&administrador, ref(subasta), ref(valla));
+	administrador.detach();
 
 
 	// ---------------------------------------------------------------------------
@@ -141,27 +144,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-// Espera a recibir el mensaje de finalización para cerrar el servidor
-void administrador(int socket_fd, Socket& socket){
 
-
-	string mensaje;
-	while(1){
-		getline(cin,mensaje);
-
-		if (mensaje == "END OF SERVICE"){
-			int error_code = socket.Close(socket_fd);
-			if(error_code == -1)
-				cerr << "Error cerrando el socket del servidor: " << strerror(errno) << endl;
-
-			// Mensaje de despedida
-			cout << "Bye bye" << endl;
-			exit(1);
-		}
-
-	}
-
-}
 
 // Imprime en una ventana durante un tiempo la ruta de imagen dada
 void imprImg(const string ruta, time_t tiempo, cimg_library::CImgDisplay& valla){
@@ -301,6 +284,40 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 	error_code = socket.Close(client_fd);
 	if(error_code == -1){
 		cerr << "Error cerrando el socket del cliente: " << strerror(errno) << endl;
+	}
+}
+
+
+// Espera a recibir el mensaje de finalización para cerrar el servidor
+void avisarFin(int socket_fd, Socket& socket){
+	string mensaje;
+	while(1){
+		getline(cin,mensaje);
+		if (mensaje == "END OF SERVICE"){
+			int error_code = socket.Close(socket_fd);
+			if(error_code == -1)
+				cerr << "Error cerrando el socket del servidor: " << strerror(errno) << endl;
+
+			// Mensaje de despedida
+			cout << "Bye bye" << endl;
+			exit(1);
+		}
+	}
+}
+
+void administrador(Subasta& subasta, Valla& valla){
+
+}
+
+void subastador(Subasta& subasta){
+	srand(time(NULL));
+	while(!FIN_SERVICIO){
+		int precio_subasta = rand() % 200;
+		int tiempo_subasta = rand() % 20;
+		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
+		int tiempo = rand() % 10 + 10;
+		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
+		subasta.cerrarSubasta();
 	}
 }
 

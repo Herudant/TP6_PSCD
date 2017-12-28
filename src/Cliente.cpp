@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 		// 1º espera recibir subasta con precio y tiempo
 					// receive - SUBASTA#PRECIO#TIEMPO
 		// 2º puja
-				 // send - PUJA#ID#PRECIO
+				 // send - PRECIO
 		// 3º espera recibir mensaje de ganador o perdedor
 				// receive - GANADOR/PERDEDOR#PRECIO
 				// si llega ganador esperamos a recibir otro mensaje cuando acabe la puja o cuando otro le supere

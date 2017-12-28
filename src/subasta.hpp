@@ -30,7 +30,7 @@ class Subasta{
     void dormirLider();
 
     int getPrecio_subasta();
-    int getPrecio_min();
+    int getNum_subastas();
     time_t getTiempo_espera();
     queue<Peticion> getPeticiones();
     bool getActiva();
@@ -44,9 +44,9 @@ class Subasta{
 		mutex mtx;
 
     bool activa; //False -> Subasta sin empezar True -> Subasta empezada
-    int precio_min;		//precio minimo con el que sale la subasta
     int precio_subasta; //precio maximo por el que va la subasta
     int id_ganador;			//id del ganador en ese momento de la subasta
+    int num_subastas;
 		time_t tiempo_espera; //tiempo que tiene el cliente para pujar en la subasta
 
 		condition_variable espera; //var.cond para quedarte bloqueado

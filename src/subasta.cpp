@@ -10,7 +10,7 @@ using namespace std;
 
 Subasta::Subasta(){
   activa = false;
-  precio_min = 0;
+  num_subastas = 0;
   precio_subasta = 0;
   tiempo_espera = 0;
   id_ganador = -1;
@@ -18,7 +18,7 @@ Subasta::Subasta(){
 
 Subasta::Subasta(const int precio, const int tiempo){
   activa = true;
-  precio_min = precio;
+  num_subastas = 0;
   precio_subasta = precio;
   tiempo_espera = tiempo;
   id_ganador = -1;
@@ -30,7 +30,7 @@ Subasta::Subasta(const int precio, const int tiempo){
 void Subasta::iniciarSubasta(const int precio, const int tiempo){
   unique_lock<mutex> lck(mtx);
   activa = true;
-  precio_min = precio;
+  num_subastas++;
   precio_subasta = precio;
   tiempo_espera = tiempo;
   id_ganador = -1;
@@ -43,6 +43,7 @@ void Subasta::cerrarSubasta(){
   precio_min = 0;
   precio_subasta = 0;
   tiempo_espera = 0;
+  espera.notify_one();
 }
 
 /*
@@ -88,9 +89,9 @@ int Subasta::getPrecio_subasta(){
 /*
  *
  */
-int Subasta::getPrecio_min(){
+int Subasta::getNum_subastas(){
   unique_lock<mutex> lck(mtx);
-	return precio_min;
+	return num_subastas;
 }
 /*
  *
