@@ -49,11 +49,13 @@ int main(int argc, char *argv[]) {
 		// Conexión con el servidor
     	socket_fd = socket.Connect();
     	count++;
+			// hola pepito
 
     	// Si error --> esperamos 1 segundo para reconectar
     	if(socket_fd == -1){
     	    this_thread::sleep_for(chrono::seconds(1));
     	}
+			
     } while(socket_fd == -1 && count < MAX_ATTEMPS);
 
     // Chequeamos si se ha realizado la conexión
