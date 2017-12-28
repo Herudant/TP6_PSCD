@@ -27,6 +27,7 @@ class Subasta{
     int entrarSubasta(const int id);   //los threads que atienden espera a que se inicia
     void cerrarSubasta();
     int pujar(const int id, const int precio);
+    void dormirLider();
 
     int getPrecio_subasta();
     int getPrecio_min();
@@ -42,13 +43,13 @@ class Subasta{
 	private:
 		mutex mtx;
 
-    bool activa;
-    int precio_min;
-    int precio_subasta;
-    int id_ganador;
-		time_t tiempo_espera;
+    bool activa; //False -> Subasta sin empezar True -> Subasta empezada
+    int precio_min;		//precio minimo con el que sale la subasta
+    int precio_subasta; //precio maximo por el que va la subasta
+    int id_ganador;			//id del ganador en ese momento de la subasta
+		time_t tiempo_espera; //tiempo que tiene el cliente para pujar en la subasta
 
-		condition_variable espera;
+		condition_variable espera; //var.cond para quedarte bloqueado
 };
 
 #endif

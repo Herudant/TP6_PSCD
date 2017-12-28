@@ -43,7 +43,6 @@ void Subasta::cerrarSubasta(){
   precio_min = 0;
   precio_subasta = 0;
   tiempo_espera = 0;
-  espera.notify_one();
 }
 
 /*
@@ -62,19 +61,22 @@ int Subasta::entrarSubasta(){
  */
 int Subasta::pujar(const int id, const int precio){
   unique_lock<mutex> lck(mtx);
-  int precio_resp;
-  if(precio > precio_subasta){
-      id_ganador = id;
-      precio_subasta = precio;
-      espera.notify_one();
-      espera.wait(lck);
+  if (activa){
+    if(precio > precio_subasta){
+        id_ganador = id;
+        precio_subasta = precio;
+        espera.notify_one();
+    }
   }
   //Si activa -> devuelve precio_subasta
   //Si !activa -> devuelve -1 => eres el ganador de la subasta
-  return (activa && id != id_ganador) ? precio_subasta : -1;
-
+  return (id != id_ganador) ? precio_subasta : -1;
 }
 
+void Subasta::dormirLider(){
+  unique_lock<mutex> lck(mtx);
+  espera.wait(lck);
+}
 
 /*
  *

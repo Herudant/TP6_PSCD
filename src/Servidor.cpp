@@ -43,7 +43,7 @@ void imprImg(const string ruta,
 void crearImg(const string ruta,
 						 	const int numVent,cimg_library::CImgDisplay& vallasec);
 void vallaral();
-void dispatcher(int client_fd, Socket& socket, Subasta& subasta);
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla);
 void subastador(Subasta& subasta);
 void administrador(int socket_fd, Socket& socket, Subasta& subasta);
 void handler(int n){
@@ -120,6 +120,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Bucle de aceptacion de peticiones
+	int id = 0;
 	while (1) {
 		// Accept
 		int client_fd = socket.Accept();
@@ -132,8 +133,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		// lanzamos el thread para atender al clliente
-		thread t(&dispatcher, client_fd, ref(socket));
+		thread t(&dispatcher, client_fd, ref(socket), ref(subasta), ref(valla), id);
 		t.detach();
+		id++;
 	}
 
 	return 0;
@@ -228,10 +230,9 @@ void crearImg(const string ruta, const int numVent,
 
 }
 
-void dispatcher(int client_fd, Socket& socket, Subasta& subasta, const int id){
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, const int id){
 	int error_code;
 	char MENS_FIN[]="END OF SERVICE";
-
 
 	// Buffer para recibir el mensaje
 	int length = 100;
@@ -249,57 +250,49 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, const int id){
 		while(!out && subasta.getActiva()) {
 
 			//notificar al cliente de la subasta
-			int send_bytes = socket.Send(client_fd, to_string(ultimo_precio));
-			if(send_bytes == -1) {
-				cerr << "Error al enviar datos: " << strerror(errno) << endl;
-				// Cerramos los sockets
-				socket.Close(client_fd);
-				exit(1);
-			}
+			send_msg(client_fd, ref(socket), to_string(ultimo_precio));
 
 			// Recibimos el mensaje del cliente (su puja)
-			int rcv_bytes = socket.Recv(client_fd, buffer, MESSAGE_SIZE);
-			if(rcv_bytes == -1) {
-				cerr << "Error al recibir datos: " << strerror(errno) << endl;
-				socket.Close(client_fd);
-			}
-			
+			buffer = recv_msg(client_fd, ref(socket));
+
 			// Si recibimos "END OF SERVICE" --> Fin de la comunicación
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
 			else {
 				cout << "Mensaje recibido por: " << client_fd << " -> '" << buffer << "\n";
-				int puja = atoi(buffer.c_str());
 
-				// Cliente hace puja
-				ultimo_precio = subasta.pujar(id, puja);
+				// Cliente hace puja, si devuelve -1 soy ganador
+				precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
 
 				// Enviamos la respuesta
 				string resp;
+				resp = (precio_ganador == -1) ? "GANADOR#"  + buffer :
+																				"PERDEDOR#" + to_string(precio_ganador);
+				send_msg(client_fd, ref(socket), resp);
 
-				//if( coste > 0 ){
-				//	timeinfo = localtime(&horaVisualizacion);
-				//	resp = "precio: " + to_string(coste) + "; hora visualizacion: " + asctime(timeinfo);
-				//}
-				//else
-				//	resp = "servidor lleno, intentelo mas tarde";
+				// Si soy el ganador
+				if(precio_ganador == -1){
+					subasta.dormirLider();
+					int precio = subasta.getPrecio_subasta();
 
-				int send_bytes = socket.Send(client_fd, resp);
-				if(send_bytes == -1) {
-					cerr << "Error al enviar datos: " << strerror(errno) << endl;
-			   	// Cerramos los sockets
-					socket.Close(client_fd);
-					exit(1);
+					if(subasta.getActiva()){
+						// Me despiertan porque han superado mi puja
+						resp = "NUEVO_GANADOR#" + to_string(precio);
+						send_msg(client_fd, ref(socket), resp);
+					}
+					else{
+						// Me despiertan porque acaba la puja y soy el ganador
+						resp = "FIN_GANADOR#"  + to_string(precio);
+
+						// Envio mensaje de ganador al cliente
+						send_msg(client_fd, ref(socket), resp);
+
+						// Recibo la URL de la valla y solicito una petición al gestor_valla
+						buffer = recv_msg(client_fd, ref(socket));
+						valla.solicitar(buffer, subasta.getTiempo_espera());
+					}
+
 				}
-			}
-		}
-		string respuesta;
-		if (ultimo_precio == -1){
-
-		}
-		int send_bytes = socket.Send(client_fd, to_string(ultimo_precio));
-		if (ultimo_precio == -1){
-			//pedir valla y demas vainas locas
 		}
 	}
 
@@ -309,7 +302,25 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, const int id){
 	if(error_code == -1){
 		cerr << "Error cerrando el socket del cliente: " << strerror(errno) << endl;
 	}
+}
 
+void send_msg(const int client_fd, Socket& socket, const string msg){
+	int send_bytes = socket.Send(client_fd, resp);
+	if(send_bytes == -1) {
+		cerr << "Error al enviar datos: " << strerror(errno) << endl;
+		// Cerramos los sockets
+		socket.Close(client_fd);
+		exit(1);
+	}
+}
 
-
+string recv_msg(const int client_fd, Socket& socket){
+	string buffer;
+	// Recibimos el mensaje del cliente (su puja)
+	int rcv_bytes = socket.Recv(client_fd, buffer, MESSAGE_SIZE);
+	if(rcv_bytes == -1) {
+		cerr << "Error al recibir datos: " << strerror(errno) << endl;
+		socket.Close(client_fd);
+	}
+	return buffer;
 }
