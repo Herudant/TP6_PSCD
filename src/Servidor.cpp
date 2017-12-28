@@ -17,9 +17,9 @@
 #include "vallaPrincipal.h"
 #include "vallaSecundaria.h"
 
-#include "Socket.h"
+#include "Socket.hpp"
 #include "CImg.h"
-#include "ImageDownloader.h"
+#include "ImageDownloader.hpp"
 
 using namespace std;
 
@@ -43,6 +43,7 @@ void vallaPral();
 void vallaSec(int n);
 void crearImg(const string ruta, const int numVent,cimg_library::CImgDisplay& vallasec);
 void dispatcher(int client_fd, Socket& socket);
+
 void handler(int n){
 	signal(SIGINT, handler);
 	cout << "Para salir escribe 'END OF SERVICE' \n";
@@ -360,5 +361,3 @@ void dispatcher(int client_fd, Socket& socket){
 
 
 }
-
-

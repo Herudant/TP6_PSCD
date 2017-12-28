@@ -4,12 +4,12 @@
 // Date:   noviembre 2015
 // Coms:   Implementación de una librería genérica para 
 //         comunicación síncrona utilizando sockets
-//         La especificación se encuentra en "Socket.h"
-//         Como realiza "#include <Socket.h>", es necesario que 
+//         La especificación se encuentra en "Socket.hpp"
+//         Como realiza "#include <Socket.hpp>", es necesario que 
 //         se indique al compilador que debe buscar ficheros 
 //         para incluir también en el directorio donde se encuentre
-//         "Socket.h", mediante
-//              -IpathDondeSeEncuentaSocket.h
+//         "Socket.hpp", mediante
+//              -IpathDondeSeEncuentaSocket.hpp
 //*****************************************************************
 
 #include <sys/socket.h>
@@ -18,7 +18,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
-#include <Socket.h>
+#include <Socket.hpp>
 
 using namespace std;
 
@@ -49,9 +49,9 @@ int Socket::Accept() {
 	socklen_t sin_size=sizeof(struct sockaddr_in);
 	int fd = accept(socket_fd,(struct sockaddr *) &client, &sin_size);
 
-	if(fd==-1)
+	if(fd==-1) { 
 		cerr << "Error en accept\n";
-    
+	}
     return fd;
 }
 //-------------------------------------------------------------.
@@ -73,10 +73,11 @@ int Socket::Bind() {
 	// Llamada a bind
 	int exito = ::bind(socket_fd, (struct sockaddr *) &server, sizeof(struct sockaddr_in));
 
-	if(exito == -1)
+	if(exito == -1) {
 		return -1;
-	else
+	} else {
 		return socket_fd;
+	}
 }
 //------------------------------------------------------------- 
 int Socket::Close(int fd) {
@@ -102,7 +103,7 @@ int Socket::Connect() {
 
 	// Obtenemos la dirección del servidor
   	he = gethostbyname(SERVER_ADDRESS.c_str());
- 	if (he==NULL){       
+ 	if (he==NULL) {       
    		cerr << "Error obteniendo la dirección del servidor\n";
 		return -1;
    	}
@@ -118,9 +119,9 @@ int Socket::Connect() {
 	if(exito==-1) {
   		cerr << "Error conectando con el servidor " << SERVER_ADDRESS << ":" << SERVER_PORT << endl;
   		return -1;
+  	} else {
+  		return socket_fd;
   	}
-  	else	
-      	return socket_fd;
 }
 //-------------------------------------------------------------
 int Socket::Listen(int max_conexions_espera) {
@@ -140,8 +141,9 @@ int Socket::Recv(int fd, char* buffer, int buffer_length) {
 	// Leemos todos los datos posibles que quepan en el buffer
 	int num_bytes = recv(fd, buffer, buffer_length, 0);
 
-	if (num_bytes == -1)
+	if (num_bytes == -1) {
 		cerr << "Error al recibir datos del socket\n";
+	}
 
 	// SEGUNDO: ENVIAMOS ACK
 	
@@ -166,7 +168,7 @@ int Socket::Recv(int fd, string &buffer, int buffer_length) {
 	// Leemos todos los datos posibles que quepan en el buffer
 	int num_bytes = recv(fd, bufferAux, buffer_length, 0);
 
-	if (num_bytes == -1){
+	if (num_bytes == -1) {
 		cerr << "Error al recibir datos del socket\n";
 	}
 	buffer = ""; //vaciar
@@ -198,7 +200,7 @@ ssize_t Socket::Send(int fd, const char* message) {
 	int rcv_bytes = recv(fd, ack_buffer, ACK_BUFFER_SIZE-1, 0);
 
 	// Comprobamos que no haya error enviando el ACK
-	if( 0 != strcmp(ack_buffer,"ACK") ){
+	if( 0 != strcmp(ack_buffer,"ACK") ) {
 		num_bytes = -1;
 	}
 
@@ -220,7 +222,7 @@ ssize_t Socket::Send(int fd, const string message) {
 	int rcv_bytes = recv(fd, ack_buffer, ACK_BUFFER_SIZE-1, 0);
 
 	// Comprobamos que no haya error enviando el ACK
-	if( 0 != strcmp(ack_buffer,"ACK") ){
+	if(0 != strcmp(ack_buffer,"ACK")) {
 		num_bytes = -1;
 	}
 

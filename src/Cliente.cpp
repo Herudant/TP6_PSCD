@@ -1,10 +1,10 @@
 //*****************************************************************
 // File:   Cliente.cpp
 // Author: PSCD-Unizar
-// Date:   noviembre 2015
+// Date:   noviembre 2017
 // Coms:   Ejemplo de cliente con comunicación síncrona mediante sockets
-//         Compilar el fichero "Makefile" asociado, mediante
-//         "make".
+//         Comr el fichero "Makefile" asociado, media
+//         "make". afskasfjhjasfhjashf
 //*****************************************************************
 
 #include <iostream>
@@ -12,7 +12,7 @@
 #include <thread>
 #include <stdio.h>
 #include <string>
-#include "Socket.h"
+#include "Socket.hpp"
 #include <ctype.h>
 #include <signal.h>
 
