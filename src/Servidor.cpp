@@ -14,8 +14,7 @@
 #include <string>
 #include <signal.h>
 
-#include "vallaPrincipal.h"
-#include "vallaSecundaria.h"
+#include "valla.h"
 
 #include "Socket.hpp"
 #include "CImg.h"
@@ -27,29 +26,34 @@ using namespace std;
 
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
 
-const int PRINCIPAL_WIDTH = 800;
-const int PRINCIPAL_HEIGHT = 800;
+const int _WIDTH = 800;
+const int _HEIGHT = 800;
 const int SECUNDARIA_WIDTH = 800;
 const int SECUNDARIA_HEIGHT = 400;
-
+bool FIN_SERVICIO = false;
 const int NUMVALLASEC = 2;
 VallaSecundaria serv_secundario;
-VallaPrincipal serv_principal;
+Valla serv_;
 
 
-void avisarFin(int socket_fd, Socket& socket);
-void imprImg(const string ruta, time_t tiempo,cimg_library::CImgDisplay& valla);
-void vallaPral();
-void vallaSec(int n);
-void crearImg(const string ruta, const int numVent,cimg_library::CImgDisplay& vallasec);
-void dispatcher(int client_fd, Socket& socket);
 
+void imprImg(const string ruta,
+	           time_t tiempo,
+						 cimg_library::CImgDisplay& valla);
+void crearImg(const string ruta,
+						 	const int numVent,cimg_library::CImgDisplay& vallasec);
+void vallaral();
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta);
+void subastador(Subasta& subasta);
+void administrador(int socket_fd, Socket& socket, Subasta& subasta);
 void handler(int n){
 	signal(SIGINT, handler);
 	cout << "Para salir escribe 'END OF SERVICE' \n";
 }
 
-//-------------------------------------------------------------
+
+
+//------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
 	if(argc != 2){
@@ -60,7 +64,7 @@ int main(int argc, char *argv[]) {
 
 	char MENS_FIN[]="END OF SERVICE";
 	// Puerto donde escucha el proceso servidor
-    int SERVER_PORT = atoi(argv[1]);
+  int SERVER_PORT = atoi(argv[1]);
 
 	// Creación del socket con el que se llevará a cabo
 	// la comunicación con el servidor.
@@ -85,23 +89,28 @@ int main(int argc, char *argv[]) {
 	ImageDownloader downloader;
 	downloader.downloadImage(cURL, ruta);
 
-	// Lanzamos los threads de las vallas
-	thread vallaP(&vallaPral);
-	vallaP.detach();
+	// --------------- Lanzamos modulos del sistema ------------------------------
+	Subasta subasta;
+	Valla valla;
 
-	thread vallaS[NUMVALLASEC];
-	for (int i = 0; i < NUMVALLASEC; i++) {
-		vallaS[i] = thread(&vallaSec, i + 1);
-		vallaS[i].detach();
-	}
+	// Lanzamos el thread de valla
+	thread valla(&gestor_valla);
+	valla.detach();
 
-	// Lanzamos el thread para avisar de fin
-	thread p(&avisarFin,socket_fd, ref(socket));
+	// Lanzamos el thread administrador
+	thread p(&administrador,socket_fd, ref(socket), ref(subasta));
 	p.detach();
 
+	// Lanzar thread subasta
+
+	thread subastador(&subastador, ref(subasta));
+	subastador.detach();
+
+
+	// ---------------------------------------------------------------------------
 
 	// Listen
-	int max_connections = 2;
+	int max_connections = 4;
 	int error_code = socket.Listen(max_connections);
 	if(error_code == -1) {
 		cerr << "Error en el listen: " << strerror(errno) << endl;
@@ -130,9 +139,8 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-
 // Espera a recibir el mensaje de finalización para cerrar el servidor
-void avisarFin(int socket_fd, Socket& socket){
+void administrador(int socket_fd, Socket& socket){
 
 
 	string mensaje;
@@ -153,9 +161,8 @@ void avisarFin(int socket_fd, Socket& socket){
 
 }
 
-
 // Imprime en una ventana durante un tiempo la ruta de imagen dada
-void imprImg(const string ruta, time_t tiempo, cimg_library::CImgDisplay& valla) {
+void imprImg(const string ruta, time_t tiempo, cimg_library::CImgDisplay& valla){
 	char rutaIMG[100];
 	strcpy(rutaIMG, ruta.c_str());
 	cimg_library::CImg<unsigned char> img_sec(rutaIMG);
@@ -165,8 +172,8 @@ void imprImg(const string ruta, time_t tiempo, cimg_library::CImgDisplay& valla)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 }
 
-// Thread que gestiona la ventana principal
-void vallaPral() {
+// Thread que gestiona la ventana
+void gestor_valla() {
 
 	int tiempo;
 	string URL;
@@ -174,17 +181,17 @@ void vallaPral() {
 	char ruta[100] = "imgs/imagePral.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
-	// VALLA PRINCIPAL
-	cimg_library::CImg<unsigned char> img_principal("imgs/default.jpg");
-	cimg_library::CImgDisplay valla_principal(img_principal.resize(PRINCIPAL_WIDTH, SECUNDARIA_WIDTH),"VALLA PRINCIPAL");
-	valla_principal.resize(PRINCIPAL_WIDTH, SECUNDARIA_WIDTH);
-	valla_principal.move(0, 0); // Esquina superior izquierda
+	// VALLA
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImgDisplay valla_(img_.resize(_WIDTH, SECUNDARIA_WIDTH),"VALLA ");
+	valla_.resize(_WIDTH, SECUNDARIA_WIDTH);
+	valla_.move(0, 0); // Esquina superior izquierda
 
 
 	while (1) {
 
 		//Datos imagen a mostrar
-		serv_principal.datosImagen(URL, tiempo);
+		serv_.datosImagen(URL, tiempo);
 
 		//Descargamos imagen
 		strcpy(cURL, URL.c_str());
@@ -192,58 +199,18 @@ void vallaPral() {
 
 
 		cout << "\n\t\t ---------------------------------------\n";
-		cout << "\t\t MOSTRANDO VENTANA PRINCIPAL: "  << to_string(tiempo) << " segundos, " << URL << endl;
+		cout << "\t\t MOSTRANDO VENTANA : "  << to_string(tiempo) << " segundos, " << URL << endl;
 		cout << "\t\t ---------------------------------------\n";
-		imprImg(ruta, tiempo, valla_principal);
-		imprImg("imgs/default.jpg", 0, valla_principal);
+		imprImg(ruta, tiempo, valla_);
+		imprImg("imgs/default.jpg", 0, valla_);
 
 		//Avisamos de la finalizacion
-		serv_principal.avisar(tiempo);
+		serv_.avisar(tiempo);
 
 	}
 
 }
 
-void vallaSec(int n) {
-
-	int tiempo;
-	string URL;
-	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
-	char ruta[100];
-	ImageDownloader downloader;
-
-	if ( n == 1)
-		strcpy(ruta,"imgs/imageSec1.jpg");
-	else if ( n == 2)
-		strcpy(ruta,"imgs/imageSec2.jpg");
-
-
-	cimg_library::CImgDisplay valla_sec;
-
-	crearImg("imgs/default.jpg", n, valla_sec);
-
-
-	while (1) {
-
-		// Pedimos datos de la imagen a mostrar.
-		serv_secundario.datosImagen(URL, tiempo, n);
-
-
-		//Descargamos imagen
-		strcpy(cURL, URL.c_str());
-		downloader.downloadImage(cURL, ruta);
-
-		cout << "\n------ -----------------------------------------\n";
-		cout << "\t\tMOSTRANDO VENTANA SECUNDARIA (" << n << "): "  << to_string(tiempo) << " segundos, " << URL << endl;
-		cout << "-------- ---------------------------------------\n";
-
-		imprImg(ruta, tiempo, valla_sec);
-
-		imprImg("imgs/default.jpg", 0, valla_sec);
-		serv_secundario.avisar(tiempo, n);
-	}
-
-}
 
 void crearImg(const string ruta, const int numVent,
 		cimg_library::CImgDisplay& vallasec) {
@@ -261,7 +228,7 @@ void crearImg(const string ruta, const int numVent,
 
 }
 
-void dispatcher(int client_fd, Socket& socket){
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta, const int id){
 	int error_code;
 	char MENS_FIN[]="END OF SERVICE";
 
@@ -271,83 +238,68 @@ void dispatcher(int client_fd, Socket& socket){
 	string buffer;
 
 	bool out = false; // Inicialmente no salir del bucle
-	while(!out) {
-		// Recibimos el mensaje del cliente: (  tipo de valla ; tiempo ; URL; )
-		int rcv_bytes = socket.Recv(client_fd, buffer, MESSAGE_SIZE);
-		if(rcv_bytes == -1) {
-			cerr << "Error al recibir datos: " << strerror(errno) << endl;
-			socket.Close(client_fd);
-		}
 
+	// Mientras dura el servicio de subastas
+	while(!FIN_SERVICIO){
 
-		// Si recibimos "END OF SERVICE" --> Fin de la comunicación
-		if(buffer == MENS_FIN)
-			out = true; // Salir del bucle
-		else {
+		// Esperamos a que se inicie una subasta
+		int ultimo_precio;
+		ultimo_precio = subasta.entrar_subasta();
 
-			cout << "Mensaje recibido por: " << client_fd << " -> '" << buffer << "'" << endl;
+		while(!out && subasta.getActiva()) {
 
-			string cadAux, valla, url;
-			int tiempo;
-			int parametro=0;
-			int len = buffer.size();
-			cadAux = "";
-			for (int i = 0; i < len ; ++i) {
-				if( buffer[i] != ';' )
-					cadAux = cadAux + buffer[i];
-				else {
-					switch (parametro){
-						case 0:
-							//cout << "Asignando valla: " << cadAux << endl;
-							valla = cadAux;
-							cadAux = "";
-							parametro++;
-							break;
-						case 1:
-
-							tiempo = stoi(cadAux);
-							//cout << "Asignando tiempo: " << tiempo << endl;
-							cadAux = "";
-							parametro++;
-							break;
-						case 2:
-							//cout << "Asignando url: " << cadAux << endl;
-							url = cadAux;
-							cadAux = "";
-							break;
-					}
-				}
-
-			}
-
-			int coste = 0;
-			time_t horaVisualizacion;
-			struct tm * timeinfo;
-
-			if ( valla == "principal")
-				serv_principal.solicitar(url, tiempo,coste, horaVisualizacion);
-			else if ( valla == "secundaria")
-				serv_secundario.solicitar(url, tiempo,coste, horaVisualizacion);
-
-
-
-			// Enviamos la respuesta
-			string resp;
-
-			if( coste > 0 ){
-				timeinfo = localtime(&horaVisualizacion);
-				resp = "precio: " + to_string(coste) + "; hora visualizacion: " + asctime(timeinfo);
-			}
-			else
-				resp = "servidor lleno, intentelo mas tarde";
-
-			int send_bytes = socket.Send(client_fd, resp);
+			//notificar al cliente de la subasta
+			int send_bytes = socket.Send(client_fd, to_string(ultimo_precio));
 			if(send_bytes == -1) {
 				cerr << "Error al enviar datos: " << strerror(errno) << endl;
 				// Cerramos los sockets
 				socket.Close(client_fd);
 				exit(1);
 			}
+
+			// Recibimos el mensaje del cliente (su puja)
+			int rcv_bytes = socket.Recv(client_fd, buffer, MESSAGE_SIZE);
+			if(rcv_bytes == -1) {
+				cerr << "Error al recibir datos: " << strerror(errno) << endl;
+				socket.Close(client_fd);
+			}
+			
+			// Si recibimos "END OF SERVICE" --> Fin de la comunicación
+			if(buffer == MENS_FIN_PUJA)
+				out = true; // Salir del bucle
+			else {
+				cout << "Mensaje recibido por: " << client_fd << " -> '" << buffer << "\n";
+				int puja = atoi(buffer.c_str());
+
+				// Cliente hace puja
+				ultimo_precio = subasta.pujar(id, puja);
+
+				// Enviamos la respuesta
+				string resp;
+
+				//if( coste > 0 ){
+				//	timeinfo = localtime(&horaVisualizacion);
+				//	resp = "precio: " + to_string(coste) + "; hora visualizacion: " + asctime(timeinfo);
+				//}
+				//else
+				//	resp = "servidor lleno, intentelo mas tarde";
+
+				int send_bytes = socket.Send(client_fd, resp);
+				if(send_bytes == -1) {
+					cerr << "Error al enviar datos: " << strerror(errno) << endl;
+			   	// Cerramos los sockets
+					socket.Close(client_fd);
+					exit(1);
+				}
+			}
+		}
+		string respuesta;
+		if (ultimo_precio == -1){
+
+		}
+		int send_bytes = socket.Send(client_fd, to_string(ultimo_precio));
+		if (ultimo_precio == -1){
+			//pedir valla y demas vainas locas
 		}
 	}
 

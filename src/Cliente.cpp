@@ -70,8 +70,18 @@ int main(int argc, char *argv[]) {
     string valla,tiempo,url, mensaje;
     bool fin = false;
 
-    // Hacemos las peticiones
+  // Hacemos las peticiones
 	do{
+		// PETICION#ARG1#ARG2...#ARGn
+		// 1º espera recibir subasta con precio y tiempo
+					// receive - SUBASTA#PRECIO#TIEMPO
+		// 2º puja
+				 // send - PUJA#ID#PRECIO
+		// 3º espera recibir mensaje de ganador o perdedor
+				// receive - GANADOR/PERDEDOR#PRECIO
+				// si llega ganador esperamos a recibir otro mensaje cuando acabe la puja o cuando otro le supere
+				// si llega perdedor volvemos a 1.
+
 		mensaje = "";
 		cout << "Nueva peticion (para salir escriba 'END OF SERVICE')\n";
 

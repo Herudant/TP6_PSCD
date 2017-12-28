@@ -1,21 +1,19 @@
 //============================================================================
-// Name        : vallaPrincipal.cpp
+// Name        : valla.cpp
 // Author      : Eduardo Alonso Monge
-// Description : practica 4 de pscd, archivo fuente vallaPrincipal.cpp
+// Description : practica 4 de pscd, archivo fuente valla.cpp
 //============================================================================
 
-#include "vallaPrincipal.h"
+#include "valla.h"
 
 
-VallaPrincipal::VallaPrincipal() {
+Valla::Valla() {
 
-	tiempoEspera = time(0);
 
 }
 
 // Si el buffer esta lleno error, precio = -1
-void VallaPrincipal::solicitar(const string img, const int tmp,
-		int& costeOperacion, time_t& horaEspera) {
+void Valla::solicitar(const string img, const int tmp, time_t& horaEspera) {
 	unique_lock<mutex> lck(mtx);
 
 	if (peticiones.size() < MAXNUM) {
@@ -23,50 +21,42 @@ void VallaPrincipal::solicitar(const string img, const int tmp,
 		if(tiempoEspera < time(0))
 			tiempoEspera = time(0);
 
-		costeOperacion = COSTE * tmp; // Devuelve el coste de la valla por el tiempo
 		horaEspera = tiempoEspera;
 		tiempoEspera += tmp;
 
-
-		Peticion peticionAux;
-		peticionAux.ruta = img;
-		peticionAux.tiempo = tmp;
-		peticiones.push(peticionAux);
+		// Encola una tupla {img, tiempo}
+		tuple<string, int> peticion;
+		make_tuple(img, tmp);
+		peticiones.push(peticion);
 
 		esperaImg.notify_one();
-
-	} else {
-		costeOperacion = -1;
 
 	}
 
 }
 
-void VallaPrincipal::datosImagen(string& rutaImg, int& tiempoImg) {
+void Valla::mostrar(string& rutaImg, int& tiempoImg) {
 
 	unique_lock<mutex> lck(mtx);
 
-	while (peticiones.empty()) {
+	while(peticiones.empty()) {
 		esperaImg.wait(lck);
 	}
 
 	if (!peticiones.empty()) {
-		Peticion peticionAux;
-
-		peticionAux = peticiones.front();
+		tuple<string, int> peticion;
+		peticion = peticiones.front();
 		peticiones.pop();
 
-		rutaImg = peticionAux.ruta;
-		tiempoImg = peticionAux.tiempo;
-
+		rutaImg = get<0>(peticion);
+		tiempoImg = get<1>(peticion);
 	}
 
 
 }
 
-void VallaPrincipal::avisar(int tmp) {
+void Valla::avisar(int tmp) {
 	unique_lock<mutex> lck(mtx);
 
 	tiempoEspera = tiempoEspera - tmp;
 }
-
