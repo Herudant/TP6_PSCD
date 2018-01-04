@@ -27,7 +27,7 @@ using namespace std;
 // Atiende peticion Cliente
 void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla);
 
-// Gestor de la valla
+// Gestor de las vallas publicitarias
 void gestor_valla();
 
 // Gestor de subastas, crea subastas que duran un periodo de tiempo aleatorio
@@ -254,10 +254,7 @@ void gestor_valla(Valla& valla)
 	cimg_library::CImgDisplay& valla_aux();
 	while (1) {
 		// Atiende petición, recibe {n_valla, URL, tiempo}
-		auto peticion = valla.atenderPeticion();
-		n_valla =	get<0>(peticion);
-		URL     = get<1>(peticion);
-		tiempo  = get<2>(peticion);
+		tie(n_valla, URL, tiempo) = valla.atenderPeticion();
 
 		//Descargamos imagen
 		downloader.downloadImage(URL.c_str(), ruta);

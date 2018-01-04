@@ -28,47 +28,47 @@ void handler(int n){
 int main(int argc, char *argv[]) {
 
 	if(argc != 3){
-		cout << "Error: Se esperaba ./Cliente IP Puerto\n";
+		cout << "Error: Se esperaba ./Cliente <IP> <Puerto>\n";
 		exit(1);
 	}
 
 	const string MENS_FIN("END OF SERVICE");
-    // Dirección y número donde escucha el proceso servidor
-    string SERVER_ADDRESS = argv[1];
-    int SERVER_PORT = atoi(argv[2]);
+  // Dirección y número donde escucha el proceso servidor
+  string SERVER_ADDRESS = argv[1];
+  int SERVER_PORT = atoi(argv[2]);
 
 	// Creación del socket con el que se llevará a cabo
 	// la comunicación con el servidor.
 	Socket socket(SERVER_ADDRESS, SERVER_PORT);
 
-    // Conectamos con el servidor. Probamos varias conexiones
+  // Conectamos con el servidor. Probamos varias conexiones
 	const int MAX_ATTEMPS = 10;
 	int count = 0;
 	int socket_fd;
 	do {
 		// Conexión con el servidor
-    	socket_fd = socket.Connect();
-    	count++;
-			// hola pepito
+  	socket_fd = socket.Connect();
+  	count++;
+		// hola pepito
 
-    	// Si error --> esperamos 1 segundo para reconectar
-    	if(socket_fd == -1){
-    	    this_thread::sleep_for(chrono::seconds(1));
-    	}
+  	// Si error --> esperamos 1 segundo para reconectar
+  	if(socket_fd == -1){
+  	    this_thread::sleep_for(chrono::seconds(1));
+  	}
 
-    } while(socket_fd == -1 && count < MAX_ATTEMPS);
+  } while(socket_fd == -1 && count < MAX_ATTEMPS);
 
-    // Chequeamos si se ha realizado la conexión
-    if(socket_fd == -1){
-    	return socket_fd;
-    }
+  // Chequeamos si se ha realizado la conexión
+  if(socket_fd == -1){
+  	return socket_fd;
+  }
 
-    // capturo señal de cierre para evitar que se termine sin cerrar los sockets.
-    signal(SIGINT, handler);
+  // capturo señal de cierre para evitar que se termine sin cerrar los sockets.
+  signal(SIGINT, handler);
 
 
-    string valla,tiempo,url, mensaje;
-    bool fin = false;
+  string valla,tiempo,url, mensaje;
+  bool fin = false;
 
   // Hacemos las peticiones
 	do{

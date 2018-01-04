@@ -30,8 +30,7 @@ void Valla::addPeticion(const string img, const int tmp) {
 		this -> tiempoEspera += tmp;
 
 		// Encola una tupla {img, tiempo}
-		tuple<string, int> peticion;
-		make_tuple(img, tmp);
+		auto peticion = make_tuple(img, tmp);
 		this -> peticiones.push(peticion);
 
 		// Actualiza datos para estadisticas
