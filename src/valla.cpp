@@ -1,7 +1,7 @@
 //============================================================================
-// Name        : valla.cpp
-// Author      : Eduardo Alonso Monge
-// Description : practica 4 de pscd, archivo fuente valla.cpp
+// Name        :
+// Author      :
+// Description :
 //============================================================================
 
 #include "valla.h"
@@ -14,9 +14,11 @@ Valla::Valla() {
 	this -> tiempo_imagenes_mostradas = 0;
 	this -> num_imagenes = 0;
 	this -> n_libres = MAX_VENTANAS;
+	for(auto i : this->ventanas_libres){
+		i = true;
+	}
 }
 
-// Si el buffer esta lleno error, precio = -1
 void Valla::addPeticion(const string img, const int tmp) {
 	unique_lock<mutex> lck(mtx);
 

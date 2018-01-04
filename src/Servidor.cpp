@@ -38,12 +38,7 @@ void subastador(Subasta& subasta);
 void avisarFin();
 
 // Imprime una imagen en una ventana durante un tiempo
-void printImage(const string ruta, time_t tiempo,
-	           cimg_library::CImgDisplay& valla);
-
-//
-void crearImg(const string ruta, const int numVent,
-	            cimg_library::CImgDisplay& vallasec);
+void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v);
 
 // Captura señal de interrupcion para evitar cerrar el servidor
 void handler(int n);
@@ -229,7 +224,6 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 	}
 
 	// Cerramos el socket del cliente
-	// subasta.clientClose();
 	cout << "-------- CERRANDO SOCKET: " << client_fd << endl;
 	error_code = socket.Close(client_fd);
 	if(error_code == -1){
@@ -240,12 +234,11 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 // Gestor de la valla
 void gestor_valla(Valla& valla)
 {
-
+	ImageDownloader downloader;
 	int tiempo, n_valla;
 	string URL;
-	ImageDownloader downloader;
-	char ruta[100] = "../imgs/";
-	char cURL[500] = "";
+
+	char ruta[100] = "../imgs/image.jpg";
 
 	// VALLA_1
 	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
@@ -261,20 +254,18 @@ void gestor_valla(Valla& valla)
 	cimg_library::CImgDisplay& valla_aux();
 	while (1) {
 		// Atiende petición, recibe {n_valla, URL, tiempo}
-		tuple<int, string, int> peticion = valla.atenderPeticion();
+		auto peticion = valla.atenderPeticion();
 		n_valla =	get<0>(peticion);
 		URL     = get<1>(peticion);
 		tiempo  = get<2>(peticion);
 
-
 		//Descargamos imagen
-		strcpy(cURL, URL.c_str());
 		downloader.downloadImage(URL.c_str(), ruta);
 
-		msg = "\n\t\t ---------------------------------------\n" +
-					"\t\t MOSTRANDO VENTANA (" + to_string(n_valla) + "): " +
+		msg = "\n\t----------------------------------------------------\n" +
+					"\t\tMOSTRANDO VENTANA (" + to_string(n_valla) + "): " +
 					 to_string(tiempo) + " segundos, " + URL +
-					"\n\t\t ---------------------------------------\n";
+					"\n\t----------------------------------------------------\n";
 
 		valla.write(msg, fs);
 
@@ -289,13 +280,12 @@ void gestor_valla(Valla& valla)
 }
 
 // Imprime una imagen en una ventana durante un tiempo
-void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& valla)
+void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 {
 	char rutaIMG[100];
-	strcpy(rutaIMG, ruta.c_str());
 	cimg_library::CImg<unsigned char> img_sec(ruta.c_str());
-	valla.render(img_sec.resize(_WIDTH, _HEIGHT));
-	valla.paint(); // Repintar nueva imagen en la valla
+	v.render(img_sec.resize(_WIDTH, _HEIGHT));
+	v.paint(); // Repintar nueva imagen en la valla
 	if(tiempo > 0)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 
@@ -352,7 +342,8 @@ void administrador(Subasta& subasta, Valla& valla)
 
 
 // Gestor de subastas, crea subastas que duran un periodo de tiempo aleatorio
-void subastador(Subasta& subasta){
+void subastador(Subasta& subasta)
+{
 	srand(time(NULL));
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;

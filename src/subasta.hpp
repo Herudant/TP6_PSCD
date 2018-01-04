@@ -20,7 +20,6 @@ using namespace std;
 class Subasta{
 
 	public:
-		// Constructores, getters y setters
 		Subasta();
 		int getPrecio_subasta();
 		int getNum_subastas();

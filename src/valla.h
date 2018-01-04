@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : valla.h
-// Author      : Eduardo Alonso Monge
-// Description : practica 4 de pscd, valla.h
+// Author      : 
+// Description :
 //============================================================================
 
 #ifndef VALLA_H_
