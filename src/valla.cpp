@@ -13,10 +13,11 @@ Valla::Valla() {
 	this -> tiempo_total = 0;
 	this -> tiempo_imagenes_mostradas = 0;
 	this -> num_imagenes = 0;
+	this -> n_libres = MAX_VENTANAS;
 }
 
 // Si el buffer esta lleno error, precio = -1
-void Valla::solicitar(const string img, const int tmp) {
+void Valla::addPeticion(const string img, const int tmp) {
 	unique_lock<mutex> lck(mtx);
 
 	if (peticiones.size() < MAXNUM) {
@@ -36,34 +37,47 @@ void Valla::solicitar(const string img, const int tmp) {
 		this -> tiempo_total+=tmp;
 
 		// Notifica que hay una nueva petición
-		esperaImg.notify_one();
+		espera_peticion.notify_one();
 	}
 
 }
 
-void Valla::mostrar(string& rutaImg, int& tiempoImg) {
+tuple<int, string, int> Valla::atenderPeticion() {
 	unique_lock<mutex> lck(mtx);
+	while(this->peticiones.empty())
+		espera_peticion.wait(lck);
 
-	while(peticiones.empty()) {
-		esperaImg.wait(lck);
+
+	while(this->n_libres == MAX_VENTANAS)
+		espera_ventana.wait(lck);
+
+	int n_ventana;
+	for(int i = 0; i < MAX_VENTANAS; ++i){
+		if(this->ventanas_libres[i]){
+			n_ventana = i;
+			break;
+		}
 	}
 
-	if (!peticiones.empty()) {
-		tuple<string, int> peticion;
-		peticion = peticiones.front();
-		this -> peticiones.pop();
+	// Saco la peticion de la cola y actualizo variables estadisticas
+	auto peticion = peticiones.front();
+	this -> peticiones.pop();
+	this -> n_libres--;
+	this -> num_imagenes++;
 
-		rutaImg = get<0>(peticion);
-		tiempoImg = get<1>(peticion);
-		this -> num_imagenes++;
-	}
+	// Devuelvo el número de ventana y la peticion
+	auto ret = make_tuple(n_ventana, get<0>(peticion), get<1>(peticion));
+	return ret;
 
 }
 
-void Valla::avisar(int tmp) {
+void Valla::finPeticion(const int tmp, const int n_ventana) {
 	unique_lock<mutex> lck(mtx);
+	this -> ventana_libre[n_ventana] = true;
+	this -> n_libres++;
 	this -> tiempoEspera = tiempoEspera - tmp;
 	this -> tiempo_imagenes_mostradas += tmp;
+	espera_ventana.notify_one();
 }
 
 int Valla::getNum_peticiones(){
@@ -92,4 +106,16 @@ int Valla::getTiempo_estimado(){
 		ret+= tiempo_peticion;
 	}
 	return ret;
+}
+
+void Valla::write(string msg){
+    unique_lock<mutex> lck(mtx_write);
+
+    cout << msg;
+}
+
+void Valla::write(string msg, ofstream &fs){
+    unique_lock<mutex> lck(mtx_write);
+
+    fs << msg;
 }

@@ -20,21 +20,26 @@ using namespace std;
 class Subasta{
 
 	public:
+		// Constructores, getters y setters
 		Subasta();
-    Subasta(const int precio, const int tiempo);
+		int getPrecio_subasta();
+		int getNum_subastas();
+		time_t getTiempo_espera();
+		bool getActiva();
+
+		// Funciones
     void iniciarSubasta(const int precio, const int tiempo);  //entra el subastador
     int entrarSubasta();   //los threads que atienden espera a que se inicia
     void cerrarSubasta();
+		void cerrarServicio();
     int pujar(const int id, const int precio);
     void dormirLider();
-    int getPrecio_subasta();
-    int getNum_subastas();
-    time_t getTiempo_espera();
-    bool getActiva();
+		bool maxSubastas(const int max);
+
 
 	private:
 		mutex mtx;
-
+		bool fin_servicio;
     bool activa; //False -> Subasta sin empezar True -> Subasta empezada
     int precio_subasta; //precio maximo por el que va la subasta
     int id_ganador;			//id del ganador en ese momento de la subasta

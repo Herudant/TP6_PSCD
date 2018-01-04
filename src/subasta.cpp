@@ -10,30 +10,26 @@ using namespace std;
 
 Subasta::Subasta(){
   this -> activa = false;
+  this -> fin_servicio = false;
   this -> num_subastas = 0;
   this -> precio_subasta = 0;
   this -> tiempo_espera = 0;
   this -> id_ganador = -1;
 }
 
-Subasta::Subasta(const int precio, const int tiempo){
-  this -> activa = true;
-  this -> num_subastas = 0;
-  this -> precio_subasta = precio;
-  this -> tiempo_espera = tiempo;
-  this -> id_ganador = -1;
-}
 
 /*
  *
  */
 void Subasta::iniciarSubasta(const int precio, const int tiempo){
   unique_lock<mutex> lck(mtx);
-  this -> activa = true;
-  this -> precio_subasta = precio;
-  this -> tiempo_espera = tiempo;
-  this -> id_ganador = -1;
-	espera.notify_all();
+  if(!this-> fin_servicio){
+    this -> activa = true;
+    this -> precio_subasta = precio;
+    this -> tiempo_espera = tiempo;
+    this -> id_ganador = -1;
+    espera.notify_all();
+  }
 }
 
 void Subasta::cerrarSubasta(){
@@ -42,9 +38,15 @@ void Subasta::cerrarSubasta(){
   this -> precio_subasta = 0;
   this -> tiempo_espera = 0;
   this -> num_subastas++;
-  espera.notify_one();
+  espera.notify_all();
 }
 
+void Subasta::cerrarServicio(){
+  unique_lock<mutex> lck(mtx);
+  if( this -> activa )
+    espera.wait(lck);
+  this -> fin_servicio = true;
+}
 /*
  *
  */
@@ -76,6 +78,10 @@ void Subasta::dormirLider(){
   espera.wait(lck);
 }
 
+void Subasta::maxSubastas(const int max){
+  unique_lock<mutex> lck(mtx);
+  return (max == this -> num_subastas);
+}
 /*
  *
  */
