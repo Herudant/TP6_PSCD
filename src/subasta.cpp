@@ -78,7 +78,7 @@ void Subasta::dormirLider(){
   espera.wait(lck);
 }
 
-void Subasta::maxSubastas(const int max){
+bool Subasta::maxSubastas(const int max){
   unique_lock<mutex> lck(mtx);
   return (max == this -> num_subastas);
 }

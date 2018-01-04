@@ -1,10 +1,7 @@
 //*****************************************************************
 // File:   Cliente.cpp
-// Author: PSCD-Unizar
-// Date:   noviembre 2017
-// Coms:   Ejemplo de cliente con comunicación síncrona mediante sockets
-//         Comr el fichero "Makefile" asociado, media
-//         "make". afskasfjhjasfhjashf
+// Author:
+// Date:
 //*****************************************************************
 
 #include <iostream>
@@ -17,13 +14,20 @@
 #include <signal.h>
 
 using namespace std;
+/*---------------  Funciones privadas ----------------------------------------*/
+
+// Envía el mensaje al cliente asociado al socket
+void send_msg(const int client_fd, Socket& socket, const string msg);
+
+// Recibe y devuelve el mensaje del cliente asociado al socket
+string recv_msg(const int client_fd, Socket& socket);
+
+// Captura señal de interrupcion para evitar cerrar el servidor
+void handler(int n);
+
+/*----------------------------------------------------------------------------*/
 
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
-
-void handler(int n){
-	signal(SIGINT, handler);
-	cout << "Para salir escribe 'END OF SERVICE' \n";
-}
 
 int main(int argc, char *argv[]) {
 
@@ -33,6 +37,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	const string MENS_FIN("END OF SERVICE");
+	const string MENS_FIN_PUJA("PASAR SUBASTA");
   // Dirección y número donde escucha el proceso servidor
   string SERVER_ADDRESS = argv[1];
   int SERVER_PORT = atoi(argv[2]);
@@ -69,65 +74,102 @@ int main(int argc, char *argv[]) {
 
   string valla,tiempo,url, mensaje;
   bool fin = false;
+	bool out = false;
 
   // Hacemos las peticiones
 	do{
-		// PETICION#ARG1#ARG2...#ARGn
-		// 1º espera recibir subasta con precio y tiempo
-					// receive - SUBASTA#PRECIO#TIEMPO
-		// 2º puja
-				 // send - PRECIO
-		// 3º espera recibir mensaje de ganador o perdedor
-				// receive - GANADOR/PERDEDOR#PRECIO
-				// si llega ganador esperamos a recibir otro mensaje cuando acabe la puja o cuando otro le supere
-				// si llega perdedor volvemos a 1.
+		bool ganador = false;
+		string buffer;
+		string puja;
+		cout << "Esperando a que se inicie una puja ..." << endl;
+		//esperar a recibir la señal de inivio de una puja y su precio
+		buffer = recv_msg(socket_fd, socket);
+		cout << "Puja activa con precio de subasta: " << buffer << endl;
+		cout << "Cuanto quiere pujar? (escribir 'PASAR SUBASTA' para no participar)"
+				 << endl;
+		getline(cin, puja);
 
-		mensaje = "";
-		cout << "Nueva peticion (para salir escriba 'END OF SERVICE')\n";
-
-		// Tiempo
-		if (!fin){
-			cout << "Tiempo: ";
-			getline(cin,tiempo);
-
-			if ( tiempo == MENS_FIN)
-				fin = true;
-			mensaje = mensaje + tiempo + ";";
+		out = false;
+		while(!out){
+			//se envia una puja
+			send_msg(socket_fd, socket, puja);
+			if (puja != MENS_FIN_PUJA){
+				//si no se ha pasado de la subasta, se recibe respuesta y analiza
+				buffer = recv_msg(socket_fd, socket);
+				/****ANÁLISIS DEL MENSAJE RECIBIDO****/
+				string aux, precio_subasta;
+				int i = 0;
+				bool fase2 = false;
+				buffer.begin();
+				while (buffer.at(i) != '\n') {
+					while (buffer.at(i) != '#'){
+						if(!fase2) aux += buffer.at(i);
+						else precio_subasta += buffer.at(i);
+						++i;
+					}
+					fase2 = true;
+					++i;
+				}
+				/********MENSAJE YA ANALIZADO********/
+				//si se ha cerrado ya la subasta
+				if (aux == "SUBASTA_CERRADA"){
+					out = true;
+				}
+				//si hno se ha superado la puja maxima
+				else if (aux == "PERDEDOR") {
+					cout << "Su puja no ha superado la actual mas alta" << endl;
+					cout << "Quiere volver a pujar? (escribir 'PASAR SUBASTA' para salir)"
+							 << endl;
+					getline(cin, puja);
+				}
+				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
+				// aviso
+				else {
+					cout << "Por el momento es usted la puja mas alta\nEsperando mas notificaciones del servior..." << endl;
+					buffer = recv_msg(socket_fd, socket);
+					/*************ANÁLISIS DEL MENSAJE RECIBIDO*************/
+					i = 0;
+					aux = "";
+					precio_subasta = "";
+					fase2 = false;
+					buffer.begin();
+					while (buffer.at(i) != '\n') {
+						while (buffer.at(i) != '#'){
+							if(!fase2) aux += buffer.at(i);
+							else precio_subasta += buffer.at(i);
+							++i;
+						}
+						fase2 = true;
+						++i;
+					}
+					/************MENSAJE YA ANALIZADO***********************/
+					//eres el ganador definitivo
+					if (aux == "FIN_GANADOR") {
+						string url;
+						cout << "Enhorabuena! Es usted el ganador de la subasta, introduzca una URL por favor:"
+								 << endl;;
+						getline(cin,url);
+						send_msg(socket_fd, socket, url);
+						ganador = true;
+					}
+					//tu puja ha sido superada
+					else {
+						cout << "Su puja ha sido superada por otro participante " << endl;
+						cout << "Quiere volver a pujar? (escribir 'PASAR SUBASTA' para salir)"
+								 << endl;
+						getline(cin, puja);
+					}
+				}
+			}
 		}
-
-
-		// URL de la imagen
-		if(!fin){
-			cout << "URL: ";
-			getline(cin,url);
-
-			if ( url == MENS_FIN )
-				fin = true;
-
-			mensaje = mensaje + url + ";";
+		// se informa del fin de subasta
+		if (!ganador) {
+			cout << "Lo sentimos, ha perdido la subasta, suerte en la siguiente"
+					 << endl;
 		}
-
-		if (fin) mensaje = MENS_FIN;
-
-		// Enviamos el mensaje
-	    int send_bytes = socket.Send(socket_fd, mensaje);
-
-	    if(send_bytes == -1){
-			cerr << "Error al enviar datos: " << strerror(errno) << endl;
-			// Cerramos el socket
-			socket.Close(socket_fd);
-			exit(1);
+		else{
+			ganador = false;
 		}
-
-		if(!fin){
-			// Recibimos la respuesta del servidor y la mostramos
-		    string buffer;
-		    int read_bytes = socket.Recv(socket_fd, buffer, MESSAGE_SIZE);
-		    cout << "Mensaje recibido: '" << buffer << "\n---------------\n";
-		}
-
-
-
 	} while(!fin);
 
     // Cerramos el socket
@@ -138,4 +180,36 @@ int main(int argc, char *argv[]) {
 
     cout << "ByeBye!\n";
     return error_code;
+}
+
+// socket.send
+void send_msg(const int socket_fd, Socket& socket, const string msg)
+{
+	int send_bytes = socket.Send(socket_fd, msg);
+	if(send_bytes == -1) {
+		cerr << "Error al enviar datos: " << strerror(errno) << endl;
+		// Cerramos los sockets
+		socket.Close(socket_fd);
+		exit(1);
+	}
+}
+
+// socket.recv
+string recv_msg(const int socket_fd, Socket& socket)
+{
+	string buffer;
+	// Recibimos el mensaje del servidor
+	int rcv_bytes = socket.Recv(socket_fd, buffer, MESSAGE_SIZE);
+	if(rcv_bytes == -1) {
+		cerr << "Error al recibir datos: " << strerror(errno) << endl;
+		socket.Close(socket_fd);
+	}
+	return buffer;
+}
+
+
+void handler(int n)
+{
+	signal(SIGINT, handler);
+	cout << "Para salir escribe 'END OF SERVICE' \n";
 }

@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
 void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, const int id)
 {
 	int error_code;
-	char MENS_FIN[]="END OF SERVICE";
+	const string MENS_FIN("END OF SERVICE");
+	const string MENS_FIN_PUJA("PASAR SUBASTA");
 
 	// Buffer para recibir el mensaje
-	int length = 100;
 	string buffer;
 
 	bool out = false; // Inicialmente no salir del bucle
@@ -175,10 +175,11 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 		int ultimo_precio;
 		ultimo_precio = subasta.entrar_subasta();
 
-		while(!out && subasta.getActiva()) {
+		//notificar al cliente de la subasta
+		send_msg(client_fd, ref(socket), to_string(ultimo_precio));
 
-			//notificar al cliente de la subasta
-			send_msg(client_fd, ref(socket), to_string(ultimo_precio));
+		out = false;
+		while(!out) {
 
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
@@ -190,36 +191,44 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 				cout << "Mensaje recibido por: " << client_fd << " -> '" << buffer << "\n";
 
 				// Cliente hace puja, si devuelve -1 soy ganador
-				precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
+				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
 
 				// Enviamos la respuesta
 				string resp;
-				resp = (precio_ganador == -1) ? "GANADOR#"  + buffer :
-																				"PERDEDOR#" + to_string(precio_ganador);
-				send_msg(client_fd, ref(socket), resp);
+				if (!subasta.getActiva()) {
+					resp = "SUBASTA_CERRADA#";
+					send_msg(client_fd, ref(socket), resp);
+					out = true;
+				}
+				else {
+					resp = (precio_ganador == -1) ? "GANADOR#"  + buffer :
+																					"PERDEDOR#" + to_string(precio_ganador);
+					send_msg(client_fd, ref(socket), resp);
 
-				// Si soy el ganador
-				if(precio_ganador == -1){
-					subasta.dormirLider();
-					int precio = subasta.getPrecio_subasta();
+					// Si soy el ganador
+					if(precio_ganador == -1){
+						subasta.dormirLider();
+						int precio = subasta.getPrecio_subasta();
 
-					if(subasta.getActiva()){
-						// Me despiertan porque han superado mi puja
-						resp = "NUEVO_GANADOR#" + to_string(precio);
-						send_msg(client_fd, ref(socket), resp);
-					}
-					else{
-						// Me despiertan porque acaba la y soy el ganador
-						resp = "FIN_GANADOR#"  + to_string(precio);
+						if(subasta.getActiva()){
+							// Me despiertan porque han superado mi puja
+							resp = "NUEVO_GANADOR#" + to_string(precio);
+							send_msg(client_fd, ref(socket), resp);
+						}
+						else{
+							// Me despiertan porque acaba la y soy el ganador
+							resp = "FIN_GANADOR#"  + to_string(precio);
 
-						// Envio mensaje de ganador al cliente
-						send_msg(client_fd, ref(socket), resp);
+							// Envio mensaje de ganador al cliente
+							send_msg(client_fd, ref(socket), resp);
 
-						// Recibo la URL de la valla y solicito una petición al gestor_valla
-						buffer = recv_msg(client_fd, ref(socket));
-						valla.addPeticion(buffer, subasta.getTiempo_espera());
+							// Recibo la URL de la valla y solicito una petición al gestor_valla
+							buffer = recv_msg(client_fd, ref(socket));
+							valla.addPeticion(buffer, subasta.getTiempo_espera());
+						}
 					}
 				}
+			}
 		}
 	}
 
@@ -371,7 +380,7 @@ void avisarFin()
 // socket.send
 void send_msg(const int client_fd, Socket& socket, const string msg)
 {
-	int send_bytes = socket.Send(client_fd, resp);
+	int send_bytes = socket.Send(client_fd, msg);
 	if(send_bytes == -1) {
 		cerr << "Error al enviar datos: " << strerror(errno) << endl;
 		// Cerramos los sockets
