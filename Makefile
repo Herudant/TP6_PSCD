@@ -11,7 +11,7 @@
 # COMANDOS #
 # ######## #
 RM = rm -f # Comando de limpieza
-CC = gcc # Comando de compilacion
+CC = g++ # Comando de compilacion
 
 ###########################
 #    VARIABLES GLOBALES   #
