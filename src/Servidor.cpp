@@ -14,6 +14,7 @@
 #include <string>
 #include <signal.h>
 #include <atomic>
+#include <fstream>
 #include "valla.h"					// Ficheros
 #include "Socket.hpp"
 #include "CImg.h"
