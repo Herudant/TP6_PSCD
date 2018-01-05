@@ -158,7 +158,8 @@ int main(int argc, char *argv[])
 
 
 // Atiende peticion Cliente
-void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, const int id)
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
+								Valla& valla, const int id)
 {
 	int error_code;
 	const string MENS_FIN("END OF SERVICE");
@@ -189,7 +190,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
 			else {
-				cout << "Mensaje recibido por: " << client_fd << " -> '" << buffer << "\n";
+				cout << "Mensaje recibido: " << client_fd << " -> '" << buffer << "\n";
 
 				// Cliente hace puja, si devuelve -1 soy ganador
 				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
@@ -197,7 +198,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla, c
 				// Enviamos la respuesta
 				string resp;
 				if (!subasta.getActiva()) {
-					resp = "SUBASTA_CERRADA#";
+					resp = "SUBASTA_CERRADA#-1";
 					send_msg(client_fd, ref(socket), resp);
 					out = true;
 				}
@@ -333,7 +334,7 @@ void administrador(Subasta& subasta, Valla& valla)
 	// Iniciar la terminación ordenada del servicio
 	cout << "Esperando a la finalización de las subastas....\n";
 	subasta.cerrarServicio();
-	cout << "Subastas finalizadas\n";
+	cout << "Subasta finalizada\n";
 
 	cout << "Esperando a la finalización de las peticiones restantes....\n";
 	valla.cerrarServicio();

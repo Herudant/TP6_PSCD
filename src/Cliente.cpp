@@ -12,7 +12,7 @@
 #include "Socket.hpp"
 #include <ctype.h>
 #include <signal.h>
-#include <list>
+#include <vector>
 
 using namespace std;
 /*---------------  Funciones privadas ----------------------------------------*/
@@ -26,7 +26,12 @@ string recv_msg(const int client_fd, Socket& socket);
 // Captura señal de interrupcion para evitar cerrar el servidor
 void handler(int n);
 
-list<string> decodificar(string mensaje, const char separador);
+vector<string> decodificar(string mensaje, const char separador);
+
+bool isNumeric(const string& input);
+
+
+string getLine_puja();
 
 /*----------------------------------------------------------------------------*/
 
@@ -57,7 +62,6 @@ int main(int argc, char *argv[]) {
 		// Conexión con el servidor
   	socket_fd = socket.Connect();
   	count++;
-		// hola pepito
 
   	// Si error --> esperamos 1 segundo para reconectar
   	if(socket_fd == -1){
@@ -83,96 +87,80 @@ int main(int argc, char *argv[]) {
 	do{
 		bool ganador = false;
 		string buffer;
-		string puja;
+		string mensaje;
 		cout << "Esperando a que se inicie una puja ..." << endl;
 		//esperar a recibir la señal de inivio de una puja y su precio
 		buffer = recv_msg(socket_fd, socket);
 		cout << "Puja activa con precio de subasta: " << buffer << endl;
-		cout << "Cuanto quiere pujar? (escribir 'PASAR SUBASTA' para no participar)"
-				 << endl;
-		getline(cin, puja);
+		cout << "Escribir 'PASAR SUBASTA' para no participar\n";
+
+		mensaje = getLine_puja();
 
 		out = false;
 		while(!out){
 			//se envia una puja
 			send_msg(socket_fd, socket, puja);
-			if (puja != MENS_FIN_PUJA){
+
+			if(mensaje == MENS_FIN_PUJA){
+				out = true;
+			}
+			else if ( mensaje == MENS_FIN){
+				out = true;
+				fin = true;
+			}
+			else {
 				//si no se ha pasado de la subasta, se recibe respuesta y analiza
 				buffer = recv_msg(socket_fd, socket);
-				/****ANÁLISIS DEL MENSAJE RECIBIDO****/
-				string aux, precio_subasta;
-				int i = 0;
-				bool fase2 = false;
-				buffer.begin();
-				while (buffer.at(i) != '\n') {
-					while (buffer.at(i) != '#'){
-						if(!fase2) aux += buffer.at(i);
-						else precio_subasta += buffer.at(i);
-						++i;
-					}
-					fase2 = true;
-					++i;
-				}
-				/********MENSAJE YA ANALIZADO********/
+				auto respuesta = decodificar(buffer, '#');
+
+				string msg_code = respuesta.at(0);
+				string precio = respuesta.at(1);
+
 				//si se ha cerrado ya la subasta
-				if (aux == "SUBASTA_CERRADA"){
+				if (msg_code == "SUBASTA_CERRADA"){
 					out = true;
 				}
 				//si hno se ha superado la puja maxima
-				else if (aux == "PERDEDOR") {
-					cout << "Su puja no ha superado la actual mas alta" << endl;
-					cout << "Quiere volver a pujar? (escribir 'PASAR SUBASTA' para salir)"
-							 << endl;
-					getline(cin, puja);
+				else if (msg_code == "PERDEDOR") {
+					cout << "Su puja no ha superado la puja actual mas alta\n";
+					cout << "Precio actual de la subasta: " << precio << endl;
+					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n"
+					mensaje = getLine_puja();
 				}
 				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
 				// aviso
-				else {
-					cout << "Por el momento es usted la puja mas alta\nEsperando mas notificaciones del servior..." << endl;
+				else if (msg_code == "GANADOR"){
+					cout << "Por el momento es usted la puja mas alta\n"
+					     << "Esperando mas notificaciones del servior...\n";
+
 					buffer = recv_msg(socket_fd, socket);
-					auto respuesta = decodificar(buffer, '#');
-					/*************ANÁLISIS DEL MENSAJE RECIBIDO*************/
-					i = 0;
-					aux = "";
-					precio_subasta = "";
-					fase2 = false;
-					buffer.begin();
-					while (buffer.at(i) != '\n') {
-						while (buffer.at(i) != '#'){
-							if(!fase2) aux += buffer.at(i);
-							else precio_subasta += buffer.at(i);
-							++i;
-						}
-						fase2 = true;
-						++i;
-					}
-					/************MENSAJE YA ANALIZADO***********************/
+					respuesta = decodificar(buffer, '#');
+
+					msg_code = respuesta.at(0);
+					precio = respuesta.at(1);
+
 					//eres el ganador definitivo
-					if (aux == "FIN_GANADOR") {
+					if (msg_code == "FIN_GANADOR") {
 						string url;
-						cout << "Enhorabuena! Es usted el ganador de la subasta, introduzca una URL por favor:"
-								 << endl;;
+						cout << "Enhorabuena! Es usted el ganador de la subasta,"
+						     << " introduzca una URL por favor: ";
 						getline(cin,url);
 						send_msg(socket_fd, socket, url);
 						ganador = true;
 					}
 					//tu puja ha sido superada
-					else {
+					else if (msg_code == "NUEVO_GANADOR"){
 						cout << "Su puja ha sido superada por otro participante " << endl;
-						cout << "Quiere volver a pujar? (escribir 'PASAR SUBASTA' para salir)"
-								 << endl;
-						getline(cin, puja);
+						cout << "Precio actual de la subasta: " << precio << endl;
+						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n"
+						mensaje = getLine_puja();
 					}
 				}
 			}
 		}
 		// se informa del fin de subasta
-		if (!ganador) {
-			cout << "Lo sentimos, ha perdido la subasta, suerte en la siguiente"
-					 << endl;
-		}
-		else{
-			ganador = false;
+		if (!ganador){
+			cout << "Lo sentimos, ha perdido la subasta, suerte en la siguiente\n";
 		}
 	} while(!fin);
 
@@ -190,8 +178,8 @@ int main(int argc, char *argv[]) {
 /////////////////////////// FUNCIONES PRIVADAS /////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-list<string> decodificar(string mensaje, const char separador){
-  list<string> ret;
+vector<string> decodificar(string mensaje, const char separador){
+  vector<string> ret;
   string msg = "";
   for(char ch: mensaje){
     if(ch == separador){
@@ -205,7 +193,14 @@ list<string> decodificar(string mensaje, const char separador){
   return ret;
 }
 
-
+string getLine_puja(){
+	string ret;
+	do{
+		cout << "Puja... > ";
+		getline(cin, ret);
+	}while(!isNumeric(mensaje) && mensaje != MENS_FIN && mens != MENS_FIN_PUJA);
+	return ret;
+}
 // socket.send
 void send_msg(const int socket_fd, Socket& socket, const string msg)
 {
@@ -236,4 +231,8 @@ void handler(int n)
 {
 	signal(SIGINT, handler);
 	cout << "Para salir escribe 'END OF SERVICE' \n";
+}
+
+bool isNumeric(const string& input) {
+	return std::all_of(input.begin(), input.end(), ::isdigit);
 }
