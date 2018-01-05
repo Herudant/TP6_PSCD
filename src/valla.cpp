@@ -6,6 +6,7 @@
 
 #include "valla.hpp"
 
+using namespace std;
 
 Valla::Valla() {
 	this -> tiempoEspera = 0;
