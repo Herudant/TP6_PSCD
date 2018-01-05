@@ -31,7 +31,7 @@ TARGET_2=$(BIN)/$(CLIENTE)
 # #################### #
 # FLAGS DE COMPILACION #
 # #################### #
-CPPFLAGS= -I. -I/opt/X11/include -O2 -std=c++11 #-fmax-errors=1 -Werror -Wall -I/usr/local/include
+CPPFLAGS= -I. -I/opt/X11/include -I/usr/local/include -O2 -std=c++11 #-fmax-errors=1 -Werror -Wall -I/usr/local/include
 LDFLAGS=-L/usr/local/lib -lm -pthread -lcurl -L/usr/X11/lib # -L/usr/X11R6/lib
 SOCKETSFLAGS=-lsocket -lnsl # Flags linkado sockets (Solaris SunOS)
 
