@@ -239,5 +239,13 @@ void handler(int n)
 }
 
 bool isNumeric(const string& input) {
-	return std::all_of(input.begin(), input.end(), ::isdigit);
+	bool ret = true;
+	for(char ch : input){
+		if(!isdigit( ch + '0' )){
+			ret = false;
+			break;
+		}
+	}
+	return ret;
+	//return std::all_of(input.begin(), input.end(), ::isdigit);
 }
