@@ -12,6 +12,7 @@
 #include "Socket.hpp"
 #include <ctype.h>
 #include <signal.h>
+#include <list>
 
 using namespace std;
 /*---------------  Funciones privadas ----------------------------------------*/
@@ -24,6 +25,8 @@ string recv_msg(const int client_fd, Socket& socket);
 
 // Captura señal de interrupcion para evitar cerrar el servidor
 void handler(int n);
+
+list<string> decodificar(string mensaje, const char separador);
 
 /*----------------------------------------------------------------------------*/
 
@@ -172,15 +175,35 @@ int main(int argc, char *argv[]) {
 		}
 	} while(!fin);
 
-    // Cerramos el socket
-    int error_code = socket.Close(socket_fd);
-    if(error_code == -1){
-		cerr << "Error cerrando el socket: " << strerror(errno) << endl;
-    }
+  // Cerramos el socket
+  int error_code = socket.Close(socket_fd);
+  if(error_code == -1){
+	cerr << "Error cerrando el socket: " << strerror(errno) << endl;
+  }
 
-    cout << "ByeBye!\n";
-    return error_code;
+  cout << "ByeBye!\n";
+  return error_code;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////// FUNCIONES PRIVADAS /////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+list<string> decodificar(string mensaje, const char separador){
+  list<string> ret;
+  string msg = "";
+  for(char ch: mensaje){
+    if(ch == separador){
+      ret.push_back(msg);
+			msg = "";
+		}
+    else
+      msg+=ch;
+  }
+	ret.push_back(msg);
+  return ret;
+}
+
 
 // socket.send
 void send_msg(const int socket_fd, Socket& socket, const string msg)
