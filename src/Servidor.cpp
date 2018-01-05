@@ -15,9 +15,9 @@
 #include <signal.h>
 #include <atomic>
 #include <fstream>
-#include "valla.h"					// Ficheros
+#include "valla.hpp"					// Ficheros
 #include "Socket.hpp"
-#include "CImg.h"
+#include "CImg.hpp"
 #include "ImageDownloader.hpp"
 
 using namespace std;
