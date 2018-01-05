@@ -79,9 +79,7 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, handler);
 
 
-  string valla,tiempo,url, mensaje;
-  bool fin = false;
-	bool out = false;
+  bool fin, out;
 
   // Hacemos las peticiones
 	do{

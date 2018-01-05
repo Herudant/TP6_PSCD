@@ -168,10 +168,10 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 	// Buffer para recibir el mensaje
 	string buffer;
 
-	bool out = false; // Inicialmente no salir del bucle
+	bool out, fin_cliente = false; // Inicialmente no salir del bucle
 
 	// Mientras dura el servicio de subastas
-	while(!FIN_SERVICIO){
+	while(!FIN_SERVICIO || !fin_cliente){
 
 		// Esperamos a que se inicie una subasta
 		int ultimo_precio;
@@ -186,11 +186,15 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
 
-			// Si recibimos "END OF SERVICE" --> Fin de la comunicación
+
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
+			else if (buffer == MENS_FIN){
+				out = true;
+				fin_cliente = true;
+			}
 			else {
-				cout << "Mensaje recibido: " << client_fd << " -> '" << buffer << "\n";
+				cout << "Mensaje recibido: " << id << " -> '" << buffer << "\n";
 
 				// Cliente hace puja, si devuelve -1 soy ganador
 				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
