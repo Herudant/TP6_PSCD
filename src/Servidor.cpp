@@ -295,6 +295,7 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 	if(tiempo > 0)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 
+
 }
 
 
