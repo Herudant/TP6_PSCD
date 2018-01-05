@@ -74,7 +74,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 
 void Valla::finPeticion(const int tmp, const int n_ventana) {
 	unique_lock<mutex> lck(mtx);
-	this -> ventana_libre[n_ventana] = true;
+	this -> ventanas_libres[n_ventana] = true;
 	this -> n_libres++;
 	this -> tiempoEspera = tiempoEspera - tmp;
 	this -> tiempo_imagenes_mostradas += tmp;

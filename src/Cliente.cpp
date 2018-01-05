@@ -130,6 +130,7 @@ int main(int argc, char *argv[]) {
 				else {
 					cout << "Por el momento es usted la puja mas alta\nEsperando mas notificaciones del servior..." << endl;
 					buffer = recv_msg(socket_fd, socket);
+					auto respuesta = decodificar(buffer, '#');
 					/*************ANÁLISIS DEL MENSAJE RECIBIDO*************/
 					i = 0;
 					aux = "";

@@ -2,11 +2,11 @@
 // File:   Socket.cpp
 // Author: PSCD-Unizar
 // Date:   noviembre 2015
-// Coms:   Implementación de una librería genérica para 
+// Coms:   Implementación de una librería genérica para
 //         comunicación síncrona utilizando sockets
 //         La especificación se encuentra en "Socket.hpp"
-//         Como realiza "#include <Socket.hpp>", es necesario que 
-//         se indique al compilador que debe buscar ficheros 
+//         Como realiza "#include <Socket.hpp>", es necesario que
+//         se indique al compilador que debe buscar ficheros
 //         para incluir también en el directorio donde se encuentre
 //         "Socket.hpp", mediante
 //              -IpathDondeSeEncuentaSocket.hpp
@@ -18,7 +18,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
-#include <Socket.hpp>
+#include "Socket.hpp"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ Socket::Socket(string address, int port) {
 	SERVER_PORT    = port;
 }
 //-------------------------------------------------------------
-// Constructor de la clase indicando solo el puerto de 
+// Constructor de la clase indicando solo el puerto de
 // escucha del servidor. Para servidores.
 Socket::Socket(int port) {
 
@@ -49,7 +49,7 @@ int Socket::Accept() {
 	socklen_t sin_size=sizeof(struct sockaddr_in);
 	int fd = accept(socket_fd,(struct sockaddr *) &client, &sin_size);
 
-	if(fd==-1) { 
+	if(fd==-1) {
 		cerr << "Error en accept\n";
 	}
     return fd;
@@ -65,8 +65,8 @@ int Socket::Bind() {
 	// Información de la dirección del servidor
 	struct sockaddr_in server;
 
-	server.sin_family = AF_INET; // IPv4        
-   	server.sin_port = htons(SERVER_PORT); 
+	server.sin_family = AF_INET; // IPv4
+   	server.sin_port = htons(SERVER_PORT);
 	server.sin_addr.s_addr = INADDR_ANY; // INADDR_ANY coloca nuestra dirección IP automáticamente
 	bzero(&(server.sin_zero),8); // 0 en el resto de la estructura
 
@@ -79,7 +79,7 @@ int Socket::Bind() {
 		return socket_fd;
 	}
 }
-//------------------------------------------------------------- 
+//-------------------------------------------------------------
 int Socket::Close(int fd) {
 
 	int exito = close(fd);
@@ -88,7 +88,7 @@ int Socket::Close(int fd) {
 		return -1;
 	}
 
-	return exito;	
+	return exito;
 }
 //-------------------------------------------------------------
 int Socket::Connect() {
@@ -103,7 +103,7 @@ int Socket::Connect() {
 
 	// Obtenemos la dirección del servidor
   	he = gethostbyname(SERVER_ADDRESS.c_str());
- 	if (he==NULL) {       
+ 	if (he==NULL) {
    		cerr << "Error obteniendo la dirección del servidor\n";
 		return -1;
    	}
@@ -137,7 +137,7 @@ int Socket::Recv(int fd, char* buffer, int buffer_length) {
 	// PRIMERO: RECIBIMOS INFORMACION
 	// Limpiamos el buffer
 	bzero(buffer, buffer_length);
-	
+
 	// Leemos todos los datos posibles que quepan en el buffer
 	int num_bytes = recv(fd, buffer, buffer_length, 0);
 
@@ -146,11 +146,11 @@ int Socket::Recv(int fd, char* buffer, int buffer_length) {
 	}
 
 	// SEGUNDO: ENVIAMOS ACK
-	
+
 	char ack[ACK_BUFFER_SIZE];
 
 	bzero(ack, ACK_BUFFER_SIZE);
-	strcpy(ack, "ACK"); 
+	strcpy(ack, "ACK");
 
 	int sent_bytes = send(fd, ack, strlen(ack), 0);
 
@@ -164,7 +164,7 @@ int Socket::Recv(int fd, string &buffer, int buffer_length) {
 	// Limpiamos el buffer
 	char bufferAux[buffer_length];
 	bzero(bufferAux, buffer_length);
-	
+
 	// Leemos todos los datos posibles que quepan en el buffer
 	int num_bytes = recv(fd, bufferAux, buffer_length, 0);
 
@@ -177,7 +177,7 @@ int Socket::Recv(int fd, string &buffer, int buffer_length) {
 	char ack[ACK_BUFFER_SIZE];
 
 	bzero(ack, ACK_BUFFER_SIZE);
-	strcpy(ack, "ACK"); 
+	strcpy(ack, "ACK");
 
 	int sent_bytes = send(fd, ack, strlen(ack), 0);
 
@@ -191,7 +191,7 @@ ssize_t Socket::Send(int fd, const char* message) {
 	ssize_t num_bytes = send(fd, message, strlen(message), 0);
 
 	// SEGUNDO: RECIBIMOS ACK
-	// Creamos buffer para ACK 
+	// Creamos buffer para ACK
 	char ack_buffer[ACK_BUFFER_SIZE];
 	bzero(ack_buffer, ACK_BUFFER_SIZE);
 
@@ -204,7 +204,7 @@ ssize_t Socket::Send(int fd, const char* message) {
 		num_bytes = -1;
 	}
 
-	return num_bytes;	
+	return num_bytes;
 }
 //-------------------------------------------------------------
 ssize_t Socket::Send(int fd, const string message) {
@@ -213,7 +213,7 @@ ssize_t Socket::Send(int fd, const string message) {
 	ssize_t num_bytes = send(fd, message.c_str(), message.length(), 0);
 
 	// SEGUNDO: RECIBIMOS ACK
-	// Creamos buffer para ACK 
+	// Creamos buffer para ACK
 	char ack_buffer[ACK_BUFFER_SIZE];
 	bzero(ack_buffer, ACK_BUFFER_SIZE);
 
@@ -226,5 +226,5 @@ ssize_t Socket::Send(int fd, const string message) {
 		num_bytes = -1;
 	}
 
-	return num_bytes;	
+	return num_bytes;
 }
