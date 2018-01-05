@@ -4,19 +4,21 @@
 // Date:
 //*****************************************************************
 
+/*---------------  Librerias y ficheros --------------------------------------*/
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <stdio.h>
 #include <string>
+#include <vector>
+#include <stdio.h>
 #include "Socket.hpp"
 #include <ctype.h>
 #include <signal.h>
-#include <vector>
 
 using namespace std;
-/*---------------  Funciones privadas ----------------------------------------*/
+/*----------------------------------------------------------------------------*/
 
+/*---------------  Funciones privadas ----------------------------------------*/
 // Envía el mensaje al cliente asociado al socket
 void send_msg(const int client_fd, Socket& socket, const string msg);
 
@@ -26,17 +28,23 @@ string recv_msg(const int client_fd, Socket& socket);
 // Captura señal de interrupcion para evitar cerrar el servidor
 void handler(int n);
 
+// Separa una cadena en subcadenadas cada vez que encuentra caracter separador
 vector<string> decodificar(string mensaje, const char separador);
 
+// Devuelve true si la entrada es numerica
 bool isNumeric(const string& input);
 
-
+// Lee de stdin y devuelve mensaje de fin o puja
 string getLine_puja();
-
 /*----------------------------------------------------------------------------*/
 
+/*--------------- Variables globales del sistema  ----------------------------*/
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
+const string MENS_FIN("END OF SERVICE");
+const string MENS_FIN_PUJA("PASAR SUBASTA");
+/*----------------------------------------------------------------------------*/
 
+/*----------------------------------------------------------------------------*/
 int main(int argc, char *argv[]) {
 
 	if(argc != 3){
@@ -44,8 +52,6 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	const string MENS_FIN("END OF SERVICE");
-	const string MENS_FIN_PUJA("PASAR SUBASTA");
   // Dirección y número donde escucha el proceso servidor
   string SERVER_ADDRESS = argv[1];
   int SERVER_PORT = atoi(argv[2]);
@@ -97,7 +103,7 @@ int main(int argc, char *argv[]) {
 		out = false;
 		while(!out){
 			//se envia una puja
-			send_msg(socket_fd, socket, puja);
+			send_msg(socket_fd, socket, mensaje);
 
 			if(mensaje == MENS_FIN_PUJA){
 				out = true;
@@ -122,7 +128,7 @@ int main(int argc, char *argv[]) {
 				else if (msg_code == "PERDEDOR") {
 					cout << "Su puja no ha superado la puja actual mas alta\n";
 					cout << "Precio actual de la subasta: " << precio << endl;
-					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n"
+					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
 					mensaje = getLine_puja();
 				}
 				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
@@ -150,7 +156,7 @@ int main(int argc, char *argv[]) {
 					else if (msg_code == "NUEVO_GANADOR"){
 						cout << "Su puja ha sido superada por otro participante " << endl;
 						cout << "Precio actual de la subasta: " << precio << endl;
-						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n"
+						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
 						mensaje = getLine_puja();
 					}
 				}
@@ -165,7 +171,7 @@ int main(int argc, char *argv[]) {
   // Cerramos el socket
   int error_code = socket.Close(socket_fd);
   if(error_code == -1){
-	cerr << "Error cerrando el socket: " << strerror(errno) << endl;
+		cerr << "Error cerrando el socket: " << strerror(errno) << endl;
   }
 
   cout << "ByeBye!\n";
@@ -196,9 +202,10 @@ string getLine_puja(){
 	do{
 		cout << "Puja... > ";
 		getline(cin, ret);
-	}while(!isNumeric(mensaje) && mensaje != MENS_FIN && mens != MENS_FIN_PUJA);
+	}while(!isNumeric(ret) && ret != MENS_FIN && ret != MENS_FIN_PUJA);
 	return ret;
 }
+
 // socket.send
 void send_msg(const int socket_fd, Socket& socket, const string msg)
 {
@@ -228,7 +235,7 @@ string recv_msg(const int socket_fd, Socket& socket)
 void handler(int n)
 {
 	signal(SIGINT, handler);
-	cout << "Para salir escribe 'END OF SERVICE' \n";
+	cout << "Para salir escribe 'END OF SERVICE'\n";
 }
 
 bool isNumeric(const string& input) {

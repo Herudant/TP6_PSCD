@@ -31,31 +31,36 @@ TARGET_2=$(BIN)/$(CLIENTE)
 # #################### #
 # FLAGS DE COMPILACION #
 # #################### #
-CPPFLAGS= -I. -I/opt/X11/include -I/usr/local/include -O2 -std=c++11 #-fmax-errors=1 -Werror -Wall -I/usr/local/include
-LDFLAGS=-L/usr/local/lib -lm -pthread -lcurl -L/usr/X11/lib # -L/usr/X11R6/lib
-SOCKETSFLAGS=-lsocket -lnsl # Flags linkado sockets (Solaris SunOS)
+
+
+# -fmax-errors=1
+CPPFLAGS=-I. -I/usr/local/include -O2 -std=c++11 -Werror
+LDFLAGS=-L/usr/X11R6/lib -L/usr/local/lib -lm -pthread -lcurl -lX11
+#SOCKETSFLAGS=-lsocket -lnsl # Flags linkado sockets (Solaris SunOS)
 
 .PHONY: all cliente servidor
 all: folder cliente servidor
 
 # #################### #
-#       CLIENTE 	   #
+#       CLIENTE 	     #
 # #################### #
 cliente: $(BIN)/$(CLIENT)
 
 $(BIN)/$(CLIENT): $(OBJECTS) $(BIN)/$(CLIENT).o
-	$(CC) $(LDFLAGS) $(OBJECTS) $(BIN)/$(CLIENT).o -o $@	#${SOCKETSFLAGS} #descomentar para Hendrix
+	$(CC) $(LDFLAGS) $(OBJECTS) $(BIN)/$(CLIENT).o -o $@
+#${SOCKETSFLAGS} #descomentar para Hendrix
 
 $(BIN)/$(CLIENT).o: $(SRC)/$(CLIENT).cpp
 	$(CC) $(CPPFLAGS) $< -c -o $@
 
 # #################### #
-# 		SERVIDOR 	   #
+# 		SERVIDOR 	       #
 # #################### #
 servidor: $(BIN)/$(SERVER)
 
 $(BIN)/$(SERVER): $(OBJECTS) $(BIN)/$(SERVER).o
-	$(CC) $(LDFLAGS) $(OBJECTS) $(BIN)/$(SERVER).o -o $@	#${SOCKETSFLAGS} #descomentar para Hendrix
+	$(CC) $(LDFLAGS) $(OBJECTS) $(BIN)/$(SERVER).o -o $@
+#${SOCKETSFLAGS} #descomentar para Hendrix
 
 $(BIN)/$(SERVER).o: $(SRC)/$(SERVER).cpp
 	$(CC) $(CPPFLAGS) $< -c -o $@

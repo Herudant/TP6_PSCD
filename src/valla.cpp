@@ -14,6 +14,7 @@ Valla::Valla() {
 	this -> tiempo_imagenes_mostradas = 0;
 	this -> num_imagenes = 0;
 	this -> n_libres = MAX_VENTANAS;
+	this -> fin_servicio = false;
 	for(auto i : this->ventanas_libres){
 		i = true;
 	}
@@ -22,7 +23,7 @@ Valla::Valla() {
 void Valla::addPeticion(const string img, const int tmp) {
 	unique_lock<mutex> lck(mtx);
 
-	if (peticiones.size() < MAXNUM) {
+	if (this -> peticiones.size() < MAXNUM && !this -> fin_servicio) {
 
 		if(tiempoEspera < time(0))
 			tiempoEspera = time(0);
@@ -64,7 +65,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 	auto peticion = peticiones.front();
 	this -> peticiones.pop();
 	this -> n_libres--;
-	this -> num_imagenes++;
+
 
 	// Devuelvo el número de ventana y la peticion
 	auto ret = make_tuple(n_ventana, get<0>(peticion), get<1>(peticion));
@@ -76,9 +77,21 @@ void Valla::finPeticion(const int tmp, const int n_ventana) {
 	unique_lock<mutex> lck(mtx);
 	this -> ventanas_libres[n_ventana] = true;
 	this -> n_libres++;
+	this -> num_imagenes++;
 	this -> tiempoEspera = tiempoEspera - tmp;
 	this -> tiempo_imagenes_mostradas += tmp;
 	espera_ventana.notify_one();
+	if(this -> fin_servicio && this -> peticiones.empty()){
+		espera_fin.notify_one();
+	}
+}
+
+void Valla::cerrarServicio(){
+	unique_lock<mutex> lck(mtx);
+	this -> fin_servicio = true;
+	while( !this -> peticiones.empty()){
+		espera_fin.wait(lck);
+	}
 }
 
 int Valla::getNum_peticiones(){

@@ -6,7 +6,6 @@
 
 
 /*---------------  Librerias y ficheros --------------------------------------*/
-
 #include <iostream>					// Librerias
 #include <thread>
 #include <stdio.h>
@@ -15,24 +14,29 @@
 #include <signal.h>
 #include <atomic>
 #include <fstream>
-#include "valla.hpp"					// Ficheros
+#include "subasta.hpp"			// Ficheros
+#include "valla.hpp"
 #include "Socket.hpp"
 #include "CImg.hpp"
 #include "ImageDownloader.hpp"
+
+#define VERBOSE
 
 using namespace std;
 /*----------------------------------------------------------------------------*/
 
 /*---------------  Funciones privadas ----------------------------------------*/
-
 // Atiende peticion Cliente
-void dispatcher(int client_fd, Socket& socket, Subasta& subasta, Valla& valla);
+void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
+								Valla& valla, const int id);
 
 // Gestor de las vallas publicitarias
-void gestor_valla();
+void gestor_valla(Valla& valla);
 
 // Gestor de subastas, crea subastas que duran un periodo de tiempo aleatorio
 void subastador(Subasta& subasta);
+
+void administrador(int fd, Socket& socket, Subasta& subasta, Valla& valla);
 
 // Espera a recibir el mensaje de finalización para avisar a los threads
 // de la finalización ordenada del servicio
@@ -58,11 +62,9 @@ const int MAX_SUBASTAS = 2;		 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
-Valla valla;
-
 ofstream fs("log_servidor.log");		// fichero de log
 
-atomic<bool> FIN_SERVICIO = false;	// indica la terminación del servicio
+atomic_bool FIN_SERVICIO = ATOMIC_VAR_INIT(false);	// indica la terminación del servicio
 /*----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
@@ -102,21 +104,22 @@ int main(int argc, char *argv[])
 	Subasta subasta;
 	Valla valla;
 
-	// Lanzamos el thread de valla
-	thread valla(&gestor_valla);
-	valla.detach();
-
 	// Lanzamos el thread avisarFin
-	thread p(&avisarFin,socket_fd, ref(socket), ref(subasta));
-	p.detach();
+	thread t_fin(&avisarFin);
+	t_fin.detach();
+
+	// Lanzamos el thread de valla
+	thread t_valla(&gestor_valla, ref(valla));
+	t_valla.detach();
 
 	// Lanzar thread subasta
-	thread subastador(&subastador, ref(subasta));
-	subastador.detach();
+	thread t_subastador(&subastador, ref(subasta));
+	t_subastador.detach();
 
 	// Lanzar thread administrador
-	thread administrador(&administrador, ref(subasta), ref(valla));
-	administrador.detach();
+	thread t_administrador(&administrador, socket_fd, ref(socket),
+	 											ref(subasta), ref(valla));
+	t_administrador.detach();
 
 	/*--------------------------------------------------------------------------*/
 
@@ -175,7 +178,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 		// Esperamos a que se inicie una subasta
 		int ultimo_precio;
-		ultimo_precio = subasta.entrar_subasta();
+		ultimo_precio = subasta.entrarSubasta();
 
 		//notificar al cliente de la subasta
 		send_msg(client_fd, ref(socket), to_string(ultimo_precio));
@@ -251,42 +254,61 @@ void gestor_valla(Valla& valla)
 {
 	ImageDownloader downloader;
 	int tiempo, n_valla;
-	string URL;
+	string URL, msg;
 
-	char ruta[100] = "../imgs/image.jpg";
+	char ruta[100] = "imgs/image.jpg";
+	char cURL[400] = "";
 
+#ifdef VERBOSE
+	cout << "CREANDO VALLA 1\n";
+#endif
 	// VALLA_1
-	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
 	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 1");
-	valla_1.resize(_WIDTH, _HEIGHT);
-	valla_1.move(0, 0); // Esquina superior izquierda
+	valla_0.resize(_WIDTH, _HEIGHT);
+	valla_0.move(0, 0); // Esquina superior izquierda
+
+#ifdef VERBOSE
+	cout << "CREANDO VALLA 2\n";
+#endif
 
 	// VALLA_2
 	cimg_library::CImgDisplay valla_1(img_.resize(_WIDTH, _HEIGHT),"VALLA 2");
-	valla_2.resize(_WIDTH, _HEIGHT);
-	valla_2.move(0, 850); // Esquina superior izquierda
+	valla_1.resize(_WIDTH, _HEIGHT);
+	valla_1.move(0, 850); // Esquina superior izquierda
 
-	cimg_library::CImgDisplay& valla_aux();
+#ifdef VERBOSE
+	cout << "VALLAS CREADAS, ATENDIENDO PETICIONES\n";
+#endif
+
 	while (1) {
 		// Atiende petición, recibe {n_valla, URL, tiempo}
 		tie(n_valla, URL, tiempo) = valla.atenderPeticion();
 
 		//Descargamos imagen
-		downloader.downloadImage(URL.c_str(), ruta);
+		strcpy(cURL, URL.c_str());
+		downloader.downloadImage(cURL, ruta);
 
-		msg = "\n\t----------------------------------------------------\n" +
-					"\t\tMOSTRANDO VENTANA (" + to_string(n_valla) + "): " +
-					 to_string(tiempo) + " segundos, " + URL +
-					"\n\t----------------------------------------------------\n";
+		msg = "\n\t----------------------------------------------------\n";
+		msg =	"\t\tMOSTRANDO VENTANA (" + to_string(n_valla) + "): " +
+					 to_string(tiempo) + " segundos, " + URL;
+		msg =	"\n\t----------------------------------------------------\n";
 
 		valla.write(msg, fs);
 
-		valla_aux = (n_valla == 0) ? ref(valla_0) : ref(valla_1);
-		printImage(ruta, tiempo, valla_aux);
+		if (n_valla == 0) {
+			printImage(ruta, tiempo, valla_0);
+			//Avisamos de la finalizacion y mostramos valla por defecto
+			printImage("imgs/default.jpg", 0, valla_0);
+			valla.finPeticion(tiempo, n_valla);
+		} else{
+			printImage(ruta, tiempo, valla_1);
 
-		//Avisamos de la finalizacion y mostramos valla por defecto
-		printImage("imgs/default.jpg", 0, valla_aux);
-		valla.finPeticion(tiempo, n_valla);
+			//Avisamos de la finalizacion y mostramos valla por defecto
+			printImage("imgs/default.jpg", 0, valla_1);
+			valla.finPeticion(tiempo, n_valla);
+		}
+
 	}
 
 }
@@ -307,7 +329,7 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 
 // Muestra información del sistema en un fichero de log
 // y se encarga de la terminación ordenada del servicio
-void administrador(Subasta& subasta, Valla& valla)
+void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		string msg;
@@ -316,21 +338,21 @@ void administrador(Subasta& subasta, Valla& valla)
 		// Mostrar información histórica del sistema (num imagenes y tiempo)
 		tiempo_imagenes = valla.getTiempo_imagenes_mostradas();
 		num_imagenes = valla.getNum_imagenes();
-		msg = "------ INFORMACION HISTORICA DEL SISTEMA -------------------------" +
-					"\n\tNumero de imagenes mostradas: " + to_string(num_imagenes)    +
-					"\n\tTiempo de imagenes mostradas: " + to_string(tiempo_imagenes) +
-					"\n---------------------------------------------------------------\n";
+		msg = "------ INFORMACION HISTORICA DEL SISTEMA -------------------------";
+		msg =	"\n\tNumero de imagenes mostradas: " + to_string(num_imagenes)    +
+					"\n\tTiempo de imagenes mostradas: " + to_string(tiempo_imagenes);
+		msg =	"\n---------------------------------------------------------------\n";
 		valla.write(msg, ref(fs));
 
 		// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
 		num_peticiones = valla.getNum_peticiones();
 		tiempo_contratado = valla.getTiempo_estimado();
 		tiempo_total = valla.getTiempo_total();
-		msg = "------ INFORMACION DEL ESTADO DEL SISTEMA ------------------------" +
-					"\n\tNumero de peticiones : " + to_string(num_peticiones)    +
+		msg = "------ INFORMACION DEL ESTADO DEL SISTEMA ------------------------";
+		msg = "\n\tNumero de peticiones : " + to_string(num_peticiones)    +
 					"\n\tTiempo contrado      : " + to_string(tiempo_contratado) +
-					"\n\tTiempo total         : " + to_string(tiempo_total)      +
-					"\n---------------------------------------------------------------\n";
+					"\n\tTiempo total         : " + to_string(tiempo_total);
+		msg =	"\n---------------------------------------------------------------\n";
 		valla.write(msg, ref(fs));
 
 	}
@@ -345,7 +367,7 @@ void administrador(Subasta& subasta, Valla& valla)
 	cout << "Peticiones finalizadas\n";
 
   cout << "Cerrando socket....\n";
-	int error_code = socket.Close(socket_fd);
+	int error_code = socket.Close(socketfd);
 	if(error_code == -1)
 		cerr << "Error cerrando el socket: " << strerror(errno) << endl;
 

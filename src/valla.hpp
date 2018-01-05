@@ -42,6 +42,10 @@ class Valla {
 		// Avisa de la finalización de la petición y libera la ventana
 		void finPeticion(const int tmp, const int n_ventana);
 
+
+		void cerrarServicio();
+
+
 		// Funciones de escritura en exclusión mutua
 		void write(string msg);
 		void write(string msg, ofstream &fs);
@@ -53,6 +57,7 @@ class Valla {
 		mutex mtx;
 		mutex mtx_write;
 		bool ventanas_libres[MAX_VENTANAS];
+		bool fin_servicio;
 		int n_libres;
 		queue<tuple<string, int>> peticiones;	// cola con tuplas {img, tiempo}
 		time_t tiempoEspera;
@@ -63,7 +68,7 @@ class Valla {
 		time_t tiempo_total;
 		time_t tiempo_imagenes_mostradas;
 
-		condition_variable espera_peticion, espera_ventana;
+		condition_variable espera_peticion, espera_ventana, espera_fin;
 
 };
 
