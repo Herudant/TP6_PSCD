@@ -70,6 +70,9 @@ atomic_bool FIN_SERVICIO = ATOMIC_VAR_INIT(false);	// indica la terminación del
 /*----------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
+	#ifdef VERBOSE
+	cout << "EMPEZANDO\n";
+	#endif
 	if(argc != 2){
 		cout << "Error:  Se esperaba ./Servidor Puerto\n";
 		exit(1);
@@ -89,17 +92,21 @@ int main(int argc, char *argv[])
 		cerr << "Error en el bind: " << strerror(errno) << endl;
 		exit(1);
 	}
-
+	#ifdef VERBOSE
+	cout << "BIN HECHO\n";
+	#endif
 	// Capturamoss la señal para evitar fallos
 	signal(SIGINT, handler);
 
 	// Descargamos la imagen por defecto
-	char ruta[100] = "imgs/default.jpg";
+	char ruta[100] = "../imgs/default.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
 	ImageDownloader downloader;
 	downloader.downloadImage(cURL, ruta);
-
+	#ifdef VERBOSE
+	cout << "IMAGEN DESCARGADA\n";
+	#endif
 	/*--------------- Lanzamos modulos del sistema -----------------------------*/
 	Subasta subasta;
 	Valla valla;
@@ -107,20 +114,28 @@ int main(int argc, char *argv[])
 	// Lanzamos el thread avisarFin
 	thread t_fin(&avisarFin);
 	t_fin.detach();
-
+	#ifdef VERBOSE
+	cout << "AVISARFIN LANZADO\n";
+	#endif
 	// Lanzamos el thread de valla
 	thread t_valla(&gestor_valla, ref(valla));
 	t_valla.detach();
-
+	#ifdef VERBOSE
+	cout << "VALLA LANZADO\n";
+	#endif
 	// Lanzar thread subasta
 	thread t_subastador(&subastador, ref(subasta));
 	t_subastador.detach();
-
+	#ifdef VERBOSE
+	cout << "SUBASTADOR LANZADO\n";
+	#endif
 	// Lanzar thread administrador
 	thread t_administrador(&administrador, socket_fd, ref(socket),
 	 											ref(subasta), ref(valla));
 	t_administrador.detach();
-
+	#ifdef VERBOSE
+	cout << "ADMINISTRADOR LANZADO\n";
+	#endif
 	/*--------------------------------------------------------------------------*/
 
 	// Listen
@@ -256,14 +271,14 @@ void gestor_valla(Valla& valla)
 	int tiempo, n_valla;
 	string URL, msg;
 
-	char ruta[100] = "imgs/image.jpg";
+	char ruta[100] = "../imgs/image.jpg";
 	char cURL[400] = "";
 
 #ifdef VERBOSE
 	cout << "CREANDO VALLA 1\n";
 #endif
 	// VALLA_1
-	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
 	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 1");
 	valla_0.resize(_WIDTH, _HEIGHT);
 	valla_0.move(0, 0); // Esquina superior izquierda
