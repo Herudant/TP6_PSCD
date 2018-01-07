@@ -59,7 +59,7 @@ const int MAX_SUBASTAS = 2;		 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
-ofstream fs("log_servidor.log");		// fichero de log
+ofstream fs("bin/log_servidor.log");		// fichero de log
 
 atomic_bool FIN_SERVICIO = ATOMIC_VAR_INIT(false);	// indica la terminación del servicio
 /*----------------------------------------------------------------------------*/
@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
 	#ifdef VERBOSE
 	cout << "IMAGEN DESCARGADA\n";
 	#endif
+
 	/*--------------- Lanzamos modulos del sistema -----------------------------*/
 	Subasta subasta;
 	Valla valla;
@@ -341,9 +342,6 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 // y se encarga de la terminación ordenada del servicio
 void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
-	#ifdef VERBOSE
-		cout << "ADMINISTRADOR LANZADO\n";
-	#endif
 	string mensaje;
 	time_t tiempo_total, tiempo_contratado, tiempo_imagenes;
 	int num_peticiones, num_imagenes;
