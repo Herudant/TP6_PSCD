@@ -38,9 +38,6 @@ void subastador(Subasta& subasta);
 
 void administrador(int fd, Socket& socket, Subasta& subasta, Valla& valla);
 
-// Espera a recibir el mensaje de finalización para avisar a los threads
-// de la finalización ordenada del servicio
-void avisarFin();
 
 // Imprime una imagen en una ventana durante un tiempo
 void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v);
@@ -111,12 +108,6 @@ int main(int argc, char *argv[])
 	Subasta subasta;
 	Valla valla;
 
-	// Lanzamos el thread avisarFin
-	thread t_fin(&avisarFin);
-	t_fin.detach();
-	#ifdef VERBOSE
-	cout << "AVISARFIN LANZADO\n";
-	#endif
 	// Lanzamos el thread de valla
 	thread t_valla(&gestor_valla, ref(valla));
 	t_valla.detach();
@@ -203,7 +194,6 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
-
 
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
@@ -346,48 +336,71 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 // y se encarga de la terminación ordenada del servicio
 void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
-	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
-		string msg;
-		time_t tiempo_total, tiempo_contratado, tiempo_imagenes;
-		int num_peticiones, num_imagenes;
-		// Mostrar información histórica del sistema (num imagenes y tiempo)
-		tiempo_imagenes = valla.getTiempo_imagenes_mostradas();
-		num_imagenes = valla.getNum_imagenes();
-		msg = "------ INFORMACION HISTORICA DEL SISTEMA -------------------------";
-		msg =	"\n\tNumero de imagenes mostradas: " + to_string(num_imagenes)    +
-					"\n\tTiempo de imagenes mostradas: " + to_string(tiempo_imagenes);
-		msg =	"\n---------------------------------------------------------------\n";
-		valla.write(msg, ref(fs));
+	#ifdef VERBOSE
+		cout << "ADMINISTRADOR LANZADO\n";
+	#endif
+	string mensaje;
+	time_t tiempo_total, tiempo_contratado, tiempo_imagenes;
+	int num_peticiones, num_imagenes;
+	while(1){
+		getline(cin,mensaje);
+		if (mensaje == "END OF SERVICE"){
+			#ifdef VERBOSE
+				cout << "END OF SERVICE DETECTADO\n";
+			#endif
+			FIN_SERVICIO = true;
 
-		// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
-		num_peticiones = valla.getNum_peticiones();
-		tiempo_contratado = valla.getTiempo_estimado();
-		tiempo_total = valla.getTiempo_total();
-		msg = "------ INFORMACION DEL ESTADO DEL SISTEMA ------------------------";
-		msg = "\n\tNumero de peticiones : " + to_string(num_peticiones)    +
-					"\n\tTiempo contrado      : " + to_string(tiempo_contratado) +
-					"\n\tTiempo total         : " + to_string(tiempo_total);
-		msg =	"\n---------------------------------------------------------------\n";
-		valla.write(msg, ref(fs));
+			// Iniciar la terminación ordenada del servicio
+			cout << "Esperando a la finalización de las subastas....\n";
+			subasta.cerrarServicio();
+			cout << "Subasta finalizada\n";
 
+			cout << "Esperando a la finalización de las peticiones restantes....\n";
+			valla.cerrarServicio();
+			cout << "Peticiones finalizadas\n";
+
+		  cout << "Cerrando socket....\n";
+			int error_code = socket.Close(socketfd);
+			if(error_code == -1)
+				cerr << "Error cerrando el socket: " << strerror(errno) << endl;
+
+			cout << "Bye bye" << endl;
+			exit(1);
+
+			break;
+		}
+		else if (mensaje =="PRINT HISTORICA"){
+			// Mostrar información histórica del sistema (num imagenes y tiempo)
+			tiempo_imagenes = valla.getTiempo_imagenes_mostradas();
+			num_imagenes = valla.getNum_imagenes();
+		  cout << "------ INFORMACION HISTORICA DEL SISTEMA -------------------------"
+					 << "\n\tNumero de imagenes mostradas: " << to_string(num_imagenes)
+					 <<	"\n\tTiempo de imagenes mostradas: " << to_string(tiempo_imagenes)
+			     << "\n---------------------------------------------------------------\n";
+			//valla.write(msg, ref(fs));
+
+		}
+		else if (mensaje == "PRINT ESTADO"){
+			// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
+			num_peticiones = valla.getNum_peticiones();
+			tiempo_contratado = valla.getTiempo_estimado();
+			tiempo_total = valla.getTiempo_total();
+			cout << "------ INFORMACION DEL ESTADO DEL SISTEMA ------------------------"
+					 << "\n\tNumero de peticiones : " << to_string(num_peticiones)
+					 <<"\n\tTiempo contrado      : " << to_string(tiempo_contratado)
+					 <<"\n\tTiempo total         : " << to_string(tiempo_total)
+					 <<	"\n---------------------------------------------------------------\n";
+			//valla.write(msg, ref(fs));
+		}
+		else {
+			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:\n"
+					 << "\t1. PRINT HISTORICA\n"
+					 << "\t2. PRINT ESTADO\n"
+					 << "\t3. END OF SERVICE\n";
+		}
 	}
 
-	// Iniciar la terminación ordenada del servicio
-	cout << "Esperando a la finalización de las subastas....\n";
-	subasta.cerrarServicio();
-	cout << "Subasta finalizada\n";
 
-	cout << "Esperando a la finalización de las peticiones restantes....\n";
-	valla.cerrarServicio();
-	cout << "Peticiones finalizadas\n";
-
-  cout << "Cerrando socket....\n";
-	int error_code = socket.Close(socketfd);
-	if(error_code == -1)
-		cerr << "Error cerrando el socket: " << strerror(errno) << endl;
-
-	cout << "Bye bye" << endl;
-	exit(1);
 }
 
 
@@ -405,21 +418,6 @@ void subastador(Subasta& subasta)
 	}
 }
 
-
-
-// Espera a recibir el mensaje de finalización para avisar a los threads
-// de la finalización ordenada del servicio
-void avisarFin()
-{
-	string mensaje;
-	while(1){
-		getline(cin,mensaje);
-		if (mensaje == "END OF SERVICE"){
-			FIN_SERVICIO = true;
-			break;
-		}
-	}
-}
 
 // socket.send
 void send_msg(const int client_fd, Socket& socket, const string msg)
