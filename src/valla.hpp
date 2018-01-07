@@ -42,13 +42,7 @@ class Valla {
 		// Avisa de la finalización de la petición y libera la ventana
 		void finPeticion(const int tmp, const int n_ventana);
 
-
 		void cerrarServicio();
-
-
-		// Funciones de escritura en exclusión mutua
-		void write(string msg);
-		void write(string msg, ofstream &fs);
 
 
 

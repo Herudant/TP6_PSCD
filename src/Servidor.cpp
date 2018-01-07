@@ -59,8 +59,6 @@ const int MAX_SUBASTAS = 2;		 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
-ofstream fs("bin/log_servidor.log");		// fichero de log
-
 atomic_bool FIN_SERVICIO = ATOMIC_VAR_INIT(false);	// indica la terminación del servicio
 /*----------------------------------------------------------------------------*/
 
@@ -96,7 +94,7 @@ int main(int argc, char *argv[])
 	signal(SIGINT, handler);
 
 	// Descargamos la imagen por defecto
-	char ruta[100] = "../imgs/default.jpg";
+	char ruta[100] = "imgs/default.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
 	ImageDownloader downloader;
@@ -196,7 +194,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
-			cout << "Mensaje recibido: " << id << " -> '" << buffer << "\n";
+			cout << "Mensaje recibido: " << id << " -> " << buffer << "\n";
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
 			else if (buffer == MENS_FIN){
@@ -207,6 +205,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 				// Cliente hace puja, si devuelve -1 soy ganador
 				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
 
+				int tiempo_subasta = subasta.getTiempo_subasta();
 				// Enviamos la respuesta
 				string resp;
 				if (!subasta.getActiva() || subasta.getNum_subastas() != num_subasta) {
@@ -239,11 +238,13 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 							// Recibo la URL de la valla y solicito una petición al gestor_valla
 							buffer = recv_msg(client_fd, ref(socket));
-							valla.addPeticion(buffer, subasta.getTiempo_espera());
+							valla.addPeticion(buffer, tiempo_subasta);
 							#ifdef VERBOSE
-								cout << "Peticion añadida: " << buffer << endl;
+								cout << "Peticion añadida: " << buffer << ","
+								     << tiempo_subasta << endl;
 							#endif
 							subasta.avisarSubastador();
+							out = true;
 							++num_subasta;
 						}
 					}
@@ -267,56 +268,64 @@ void gestor_valla(Valla& valla)
 	int tiempo, n_valla;
 	string URL, msg;
 
-	char ruta[100] = "../imgs/image.jpg";
+	char ruta[100] = "imgs/image.jpg";
 	char cURL[400] = "";
 
-#ifdef VERBOSE
+  #ifdef VERBOSE
 	cout << "CREANDO VALLA 1\n";
-#endif
+  #endif
 	// VALLA_1
-	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
-	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 1");
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 0");
 	valla_0.resize(_WIDTH, _HEIGHT);
 	valla_0.move(0, 0); // Esquina superior izquierda
 
-#ifdef VERBOSE
+  #ifdef VERBOSE
 	cout << "CREANDO VALLA 2\n";
-#endif
+  #endif
 
 	// VALLA_2
-	cimg_library::CImgDisplay valla_1(img_.resize(_WIDTH, _HEIGHT),"VALLA 2");
+	cimg_library::CImgDisplay valla_1(img_.resize(_WIDTH, _HEIGHT),"VALLA 1");
 	valla_1.resize(_WIDTH, _HEIGHT);
 	valla_1.move(0, 850); // Esquina superior izquierda
 
-#ifdef VERBOSE
+  #ifdef VERBOSE
 	cout << "VALLAS CREADAS, ATENDIENDO PETICIONES\n";
-#endif
+  #endif
 
 	while (1) {
 		// Atiende petición, recibe {n_valla, URL, tiempo}
 		tie(n_valla, URL, tiempo) = valla.atenderPeticion();
 
+		#ifdef VERBOSE
+		cout << "\n\t----------------------------------------------------\n"
+		     << "\tMOSTRANDO VENTANA (" << to_string(n_valla) << "): "
+				 << to_string(tiempo) << " segundos, " << URL
+		     << "\n\t----------------------------------------------------\n";
+	  #endif
+
 		//Descargamos imagen
 		strcpy(cURL, URL.c_str());
 		downloader.downloadImage(cURL, ruta);
-
-		msg = "\n\t----------------------------------------------------\n";
-		msg =	"\t\tMOSTRANDO VENTANA (" + to_string(n_valla) + "): " +
-					 to_string(tiempo) + " segundos, " + URL;
-		msg =	"\n\t----------------------------------------------------\n";
-
-		valla.write(msg, fs);
+		//valla.write(msg, fs);
 
 		if (n_valla == 0) {
+			#ifdef VERBOSE
+				cout << "Modificando valla 0\n";
+			#endif
 			printImage(ruta, tiempo, valla_0);
+
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("../imgs/default.jpg", 0, valla_0);
+			printImage("imgs/default.jpg", 0, valla_0);
 			valla.finPeticion(tiempo, n_valla);
 		} else{
+			#ifdef VERBOSE
+				cout << "Modificando valla 1\n";
+			#endif
 			printImage(ruta, tiempo, valla_1);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("../imgs/default.jpg", 0, valla_1);
+			printImage("imgs/default.jpg", 0, valla_1);
 			valla.finPeticion(tiempo, n_valla);
 		}
 
@@ -336,7 +345,6 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 	if(tiempo > 0)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 }
-
 
 // Muestra información del sistema en un fichero de log
 // y se encarga de la terminación ordenada del servicio
@@ -406,7 +414,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 
 }
 
-
 // Gestor de subastas, crea subastas que duran un periodo de tiempo aleatorio
 void subastador(Subasta& subasta)
 {
@@ -414,14 +421,25 @@ void subastador(Subasta& subasta)
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
 		int tiempo_subasta = rand() % 20  + 2;
+		#ifdef VERBOSE
+			cout << "INICIANDO SUBASTA: " << precio_subasta << "€, "
+				   << tiempo_subasta << " segundos.\n";
+		#endif
+
 		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
-		int tiempo = rand() % 10 + 10;
-		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
+
+		int duracion_subasta = rand() % 20 + 10;
+		this_thread::sleep_for(chrono::milliseconds(duracion_subasta *1000));
+
+		#ifdef VERBOSE
+			cout << "CERRANDO SUBASTA...\n";
+		#endif
 		subasta.cerrarSubasta();
-		subasta.esperarGanador();
+		#ifdef VERBOSE
+			cout << "SUBASTA CERRADA\n";
+		#endif
 	}
 }
-
 
 // socket.send
 void send_msg(const int client_fd, Socket& socket, const string msg)
@@ -447,7 +465,6 @@ string recv_msg(const int client_fd, Socket& socket)
 	}
 	return buffer;
 }
-
 
 void handler(int n)
 {

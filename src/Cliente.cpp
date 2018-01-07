@@ -93,16 +93,16 @@ int main(int argc, char *argv[]) {
 		string buffer;
 		string mensaje;
 		cout << "Esperando a que se inicie una puja ..." << endl;
-		//esperar a recibir la señal de inivio de una puja y su precio
+		//esperar a recibir la señal de inicio de una puja y su precio
 		buffer = recv_msg(socket_fd, socket);
 		cout << "Puja activa con precio de subasta: " << buffer << endl;
 		cout << "Escribir 'PASAR SUBASTA' para no participar\n";
 
-		mensaje = getLine_puja();
-
 		out = false;
+		fin = false;
 		while(!out){
 			//se envia una puja
+			mensaje = getLine_puja();
 			send_msg(socket_fd, socket, mensaje);
 
 			if(mensaje == MENS_FIN_PUJA){
@@ -123,13 +123,13 @@ int main(int argc, char *argv[]) {
 				//si se ha cerrado ya la subasta
 				if (msg_code == "SUBASTA_CERRADA"){
 					out = true;
+					cout << "Subasta cerrada\n";
 				}
 				//si hno se ha superado la puja maxima
 				else if (msg_code == "PERDEDOR") {
 					cout << "Su puja no ha superado la puja actual mas alta\n";
 					cout << "Precio actual de la subasta: " << precio << endl;
 					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
-					mensaje = getLine_puja();
 				}
 				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
 				// aviso
@@ -151,13 +151,16 @@ int main(int argc, char *argv[]) {
 						getline(cin,url);
 						send_msg(socket_fd, socket, url);
 						ganador = true;
+						out = true;
 					}
 					//tu puja ha sido superada
 					else if (msg_code == "NUEVO_GANADOR"){
 						cout << "Su puja ha sido superada por otro participante " << endl;
 						cout << "Precio actual de la subasta: " << precio << endl;
 						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
-						mensaje = getLine_puja();
+					}
+					else{
+						out = true;
 					}
 				}
 			}
@@ -199,7 +202,7 @@ vector<string> decodificar(string mensaje, const char separador){
 
 string getLine_puja(){
 	string ret;
-	
+
 	cout << "Puja... > ";
 	getline(cin, ret);
 

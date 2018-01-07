@@ -23,7 +23,7 @@ class Subasta{
 		Subasta();
 		int getPrecio_subasta();
 		int getNum_subastas();
-		time_t getTiempo_espera();
+		int getTiempo_subasta();
 		bool getActiva();
 
 		// Funciones
@@ -34,7 +34,6 @@ class Subasta{
     int pujar(const int id, const int precio);
     void dormirLider();
 		void avisarSubastador();
-		void esperarGanador();
 		bool maxSubastas(const int max);
 
 
@@ -45,10 +44,10 @@ class Subasta{
     int precio_subasta; //precio maximo por el que va la subasta
     int id_ganador;			//id del ganador en ese momento de la subasta
     int num_subastas;
-		time_t tiempo_espera; //tiempo que tiene el cliente para pujar en la subasta
-		bool ganador_pendiente = true;
+		int tiempo_subasta; //tiempo que tiene el cliente para pujar en la subasta
+		bool ganador_pendiente;
 
-		condition_variable espera; //var.cond para quedarte bloqueado
+		condition_variable espera, espera_ganador; //var.cond para quedarte bloqueado
 };
 
 #endif

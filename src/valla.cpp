@@ -38,7 +38,7 @@ void Valla::addPeticion(const string img, const int tmp) {
 		// Actualiza datos para estadisticas
 		this -> num_peticiones++;
 		this -> tiempo_total+=tmp;
-		cout<< "peticion añadida" << endl;
+
 		// Notifica que hay una nueva petición
 		espera_peticion.notify_one();
 	}
@@ -57,6 +57,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 	int n_ventana;
 	for(int i = 0; i < MAX_VENTANAS; ++i){
 		if(this->ventanas_libres[i]){
+			this->ventanas_libres[i] = false;
 			n_ventana = i;
 			break;
 		}
@@ -121,16 +122,4 @@ int Valla::getTiempo_estimado(){
 		ret+= tiempo_peticion;
 	}
 	return ret;
-}
-
-void Valla::write(string msg){
-    unique_lock<mutex> lck(mtx_write);
-
-    cout << msg;
-}
-
-void Valla::write(string msg, ofstream &fs){
-    unique_lock<mutex> lck(mtx_write);
-
-    fs << msg;
 }
