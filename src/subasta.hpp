@@ -33,6 +33,8 @@ class Subasta{
 		void cerrarServicio();
     int pujar(const int id, const int precio);
     void dormirLider();
+		void avisarSubastador();
+		void esperarGanador();
 		bool maxSubastas(const int max);
 
 
@@ -44,6 +46,7 @@ class Subasta{
     int id_ganador;			//id del ganador en ese momento de la subasta
     int num_subastas;
 		time_t tiempo_espera; //tiempo que tiene el cliente para pujar en la subasta
+		bool ganador_pendiente = true;
 
 		condition_variable espera; //var.cond para quedarte bloqueado
 };

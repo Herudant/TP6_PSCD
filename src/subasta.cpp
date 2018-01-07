@@ -27,6 +27,7 @@ void Subasta::iniciarSubasta(const int precio, const int tiempo){
     this -> activa = true;
     this -> precio_subasta = precio;
     this -> tiempo_espera = tiempo;
+    this -> num_subastas = 0;
     this -> id_ganador = -1;
     espera.notify_all();
   }
@@ -76,6 +77,20 @@ int Subasta::pujar(const int id, const int precio){
 void Subasta::dormirLider(){
   unique_lock<mutex> lck(mtx);
   espera.wait(lck);
+}
+
+void Subasta::avisarSubastador(){
+  unique_lock<mutex> lck(mtx);
+  ganador_pendiente = false;
+  espera.notify_one();
+}
+
+void Subasta::esperarGanador(){
+  unique_lock<mutex> lck(mtx);
+  while(ganador_pendiente){
+    espera.wait(lck);
+    this -> ganador_pendiente = true;
+  }
 }
 
 bool Subasta::maxSubastas(const int max){

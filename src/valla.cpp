@@ -38,7 +38,7 @@ void Valla::addPeticion(const string img, const int tmp) {
 		// Actualiza datos para estadisticas
 		this -> num_peticiones++;
 		this -> tiempo_total+=tmp;
-
+		cout<< "peticion añadida" << endl;
 		// Notifica que hay una nueva petición
 		espera_peticion.notify_one();
 	}
@@ -51,7 +51,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 		espera_peticion.wait(lck);
 
 
-	while(this->n_libres == MAX_VENTANAS)
+	while(this->n_libres == 0)
 		espera_ventana.wait(lck);
 
 	int n_ventana;

@@ -184,6 +184,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 		// Esperamos a que se inicie una subasta
 		int ultimo_precio;
+		int num_subasta = 0;
 		ultimo_precio = subasta.entrarSubasta();
 
 		//notificar al cliente de la subasta
@@ -194,7 +195,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
-
+			cout << "Mensaje recibido: " << id << " -> '" << buffer << "\n";
 			if(buffer == MENS_FIN_PUJA)
 				out = true; // Salir del bucle
 			else if (buffer == MENS_FIN){
@@ -202,16 +203,15 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 				fin_cliente = true;
 			}
 			else {
-				cout << "Mensaje recibido: " << id << " -> '" << buffer << "\n";
-
 				// Cliente hace puja, si devuelve -1 soy ganador
 				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
 
 				// Enviamos la respuesta
 				string resp;
-				if (!subasta.getActiva()) {
+				if (!subasta.getActiva() || subasta.getNum_subastas() != num_subasta) {
 					resp = "SUBASTA_CERRADA#-1";
 					send_msg(client_fd, ref(socket), resp);
+					num_subasta = subasta.getNum_subastas();
 					out = true;
 				}
 				else {
@@ -239,6 +239,11 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 							// Recibo la URL de la valla y solicito una petición al gestor_valla
 							buffer = recv_msg(client_fd, ref(socket));
 							valla.addPeticion(buffer, subasta.getTiempo_espera());
+							#ifdef VERBOSE
+								cout << "Peticion añadida: " << buffer << endl;
+							#endif
+							subasta.avisarSubastador();
+							++num_subasta;
 						}
 					}
 				}
@@ -304,13 +309,13 @@ void gestor_valla(Valla& valla)
 		if (n_valla == 0) {
 			printImage(ruta, tiempo, valla_0);
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_0);
+			printImage("../imgs/default.jpg", 0, valla_0);
 			valla.finPeticion(tiempo, n_valla);
 		} else{
 			printImage(ruta, tiempo, valla_1);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_1);
+			printImage("../imgs/default.jpg", 0, valla_1);
 			valla.finPeticion(tiempo, n_valla);
 		}
 
@@ -322,13 +327,13 @@ void gestor_valla(Valla& valla)
 void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 {
 	char rutaIMG[100];
-	cimg_library::CImg<unsigned char> img_sec(ruta.c_str());
+	strcpy(rutaIMG, ruta.c_str());
+
+	cimg_library::CImg<unsigned char> img_sec(rutaIMG);
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
 	if(tiempo > 0)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
-
-
 }
 
 
@@ -415,6 +420,7 @@ void subastador(Subasta& subasta)
 		int tiempo = rand() % 10 + 10;
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 		subasta.cerrarSubasta();
+		subasta.esperarGanador();
 	}
 }
 

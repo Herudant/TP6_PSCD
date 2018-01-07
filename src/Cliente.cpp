@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
 
 					msg_code = respuesta.at(0);
 					precio = respuesta.at(1);
-
+					cout << "la respuesta recibida es: " << msg_code << endl;
 					//eres el ganador definitivo
 					if (msg_code == "FIN_GANADOR") {
 						string url;
@@ -199,10 +199,10 @@ vector<string> decodificar(string mensaje, const char separador){
 
 string getLine_puja(){
 	string ret;
-	do{
-		cout << "Puja... > ";
-		getline(cin, ret);
-	}while(!isNumeric(ret) && ret != MENS_FIN && ret != MENS_FIN_PUJA);
+	
+	cout << "Puja... > ";
+	getline(cin, ret);
+
 	return ret;
 }
 
