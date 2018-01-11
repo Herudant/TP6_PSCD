@@ -6,4 +6,4 @@ fi
 
 cd bin
 
-./Servidor $1
+./bin/Servidor $1

@@ -9,5 +9,5 @@ fi
 
 for i in {1..3}
 do
-	xterm -e ./Cliente $1 $2 auto &
+	xterm -e ./bin/Cliente $1 $2 auto &
 done
