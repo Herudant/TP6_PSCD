@@ -4,7 +4,7 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-URLS=("1" "2" "3")
+URLS=("https://static.photocdn.pt/images/articles/2017/04/28/iStock-516651882.jpg" "https://static.pexels.com/photos/132037/pexels-photo-132037.jpeg" "https://i.ytimg.com/vi/c7oV1T2j5mc/maxresdefault.jpg")
 
 for i in {1..3}
 do
