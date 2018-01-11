@@ -28,7 +28,6 @@ void Subasta::iniciarSubasta(const int precio, const int tiempo){
     this -> activa = true;
     this -> precio_subasta = precio;
     this -> tiempo_subasta = tiempo;
-    this -> num_subastas++;
     this -> id_ganador = -1;
     espera.notify_all();
   }
@@ -57,9 +56,9 @@ void Subasta::cerrarServicio(){
 /*
  *
  */
-int Subasta::entrarSubasta(){
+int Subasta::entrarSubasta(const int i){
   unique_lock<mutex> lck(mtx);
-  while(!activa){
+  while(!activa || i != this->num_subastas){
     espera.wait(lck);
   }
   return this -> precio_subasta;
