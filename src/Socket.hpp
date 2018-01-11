@@ -2,7 +2,7 @@
 // File:   Socket.hpp
 // Author: PSCD-Unizar
 // Date:   noviembre 2015
-// Coms:   Especificación de una librería genérica para 
+// Coms:   Especificación de una librería genérica para
 //         comunicación síncrona utilizando sockets
 //*****************************************************************
 
@@ -34,7 +34,7 @@ public:
 	Socket(string address, int port);
 
 
-	// Constructor de la clase indicando  el puerto de 
+	// Constructor de la clase indicando  el puerto de
 	// escucha del servidor. Para servidores.
 	Socket(int port);
 
@@ -49,10 +49,10 @@ public:
 	int Accept();
 
 	// Binding de la nueva conexión.
-	// PRE: 
+	// PRE:
 	// POST: Asocia la nueva conexión con el programa actual.
 	// Devuelve el descriptor de fichero del socket asociado
-	// a la conexión en caso de éxito. 
+	// a la conexión en caso de éxito.
 	// Devuelve -1 en caso de error.
 	int Bind();
 
@@ -62,17 +62,17 @@ public:
 	// POST: Cierra la conexión asociada al descriptor de
 	//       fichero indicado.
 	// Devuelve 0 en caso de éxito.
-	// Devuelve -1 en caso de error. 
+	// Devuelve -1 en caso de error.
 	int Close(int fd);
 
 	// Conexión con el servidor.
-	// PRE: 
+	// PRE:
 	// POST: La función conecta con el servidor utilizando
-	//       el socket especificado. 
+	//       el socket especificado.
 	// En caso de éxito el método devuelve el descriptor
-	// de fichero del socket 
+	// de fichero del socket
 	// a utilizar para enviar y recibir mensages.
-	// Devuelve -1 en caso de error. 
+	// Devuelve -1 en caso de error.
 	int Connect();
 
 	// Llamada a listen.
@@ -84,14 +84,14 @@ public:
 	// Devuelve -1 en caso de error.
 	int Listen(int max_conexiones_espera);
 
-	// Recepción de un nuevo mensaje a través del 
+	// Recepción de un nuevo mensaje a través del
 	// socket abierto.
 	// PRE: 'fd' indica un descriptor de fichero asociado
 	//       a un socket con una conexión abierta.
-	//       buffer: Puntero al buffer donde se almacenaran 
+	//       buffer: Puntero al buffer donde se almacenaran
 	//       los datos leídos.
 	//       buffer_length indica el tamaño del buffer.
-	// POST: Recibe un nuevo mensaje que es almacenado 
+	// POST: Recibe un nuevo mensaje que es almacenado
 	//       en la variable "buffer".
 	// Devuelve el numero de bytes leídos en caso de éxito.
 	// Devuelve -1 en caso de error.
@@ -99,15 +99,15 @@ public:
 	int Recv(int fd, string &buffer, int buffer_length);
 
 	// Envía información a através del socket abierto
-	// PRE: 'fd' indica un descriptor de fichero asociado 
+	// PRE: 'fd' indica un descriptor de fichero asociado
 	//       a un socket con una conexión abierta.
 	//       "message" ha de ser NO VACÍO
-	// POST: Envía el mensaje establecido a través del 
+	// POST: Envía el mensaje establecido a través del
 	//       socket indicado
 	// Devuelve el número de bytes enviados en caso de éxito.
 	// Devuelve -1 en caso de error.
 	ssize_t Send(int fd, const char* message);
-	ssize_t Send(int fd, const string message); 
+	ssize_t Send(int fd, const string message);
 };
 
 #endif

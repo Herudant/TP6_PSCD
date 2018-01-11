@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	signal(SIGINT, handler);
 
 	// Descargamos la imagen por defecto
-	char ruta[100] = "imgs/default.jpg";
+	char ruta[100] = "../imgs/default.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
 	ImageDownloader downloader;
@@ -177,14 +177,14 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 	string buffer;
 
 	bool out, fin_cliente = false; // Inicialmente no salir del bucle
+	int num_subasta = subasta.getNum_subastas();
 
 	// Mientras dura el servicio de subastas
 	while(!FIN_SERVICIO || !fin_cliente){
 
 		// Esperamos a que se inicie una subasta
 		int ultimo_precio;
-		int num_subasta = 0;
-		ultimo_precio = subasta.entrarSubasta();
+		ultimo_precio = subasta.entrarSubasta(num_subasta);
 
 		//notificar al cliente de la subasta
 		send_msg(client_fd, ref(socket), to_string(ultimo_precio));
@@ -195,8 +195,10 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			// Recibimos el mensaje del cliente (su puja)
 			buffer = recv_msg(client_fd, ref(socket));
 			cout << "Mensaje recibido: " << id << " -> " << buffer << "\n";
-			if(buffer == MENS_FIN_PUJA)
+			if(buffer == MENS_FIN_PUJA){
 				out = true; // Salir del bucle
+				++num_subasta;
+			}
 			else if (buffer == MENS_FIN){
 				out = true;
 				fin_cliente = true;
@@ -209,9 +211,17 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 				// Enviamos la respuesta
 				string resp;
 				if (!subasta.getActiva() || subasta.getNum_subastas() != num_subasta) {
+					#ifdef VERBOSE
+					cout << "subastas: "<< subasta.getNum_subastas()
+							 << "y el cliente esta en subasta: " << num_subasta
+							 << ", ademas la subasta activa? " << subasta.getActiva() << endl;
+					#endif
 					resp = "SUBASTA_CERRADA#-1";
 					send_msg(client_fd, ref(socket), resp);
 					num_subasta = subasta.getNum_subastas();
+					#ifdef VERBOSE
+					cout << "realojado en la puja " << num_subasta << endl;
+					#endif
 					out = true;
 				}
 				else {
@@ -268,14 +278,14 @@ void gestor_valla(Valla& valla)
 	int tiempo, n_valla;
 	string URL, msg;
 
-	char ruta[100] = "imgs/image.jpg";
+	char ruta[100] = "../imgs/image.jpg";
 	char cURL[400] = "";
 
   #ifdef VERBOSE
 	cout << "CREANDO VALLA 1\n";
   #endif
 	// VALLA_1
-	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
 	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 0");
 	valla_0.resize(_WIDTH, _HEIGHT);
 	valla_0.move(0, 0); // Esquina superior izquierda
@@ -316,7 +326,7 @@ void gestor_valla(Valla& valla)
 			printImage(ruta, tiempo, valla_0);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_0);
+			printImage("../imgs/default.jpg", 0, valla_0);
 			valla.finPeticion(tiempo, n_valla);
 		} else{
 			#ifdef VERBOSE
@@ -325,7 +335,7 @@ void gestor_valla(Valla& valla)
 			printImage(ruta, tiempo, valla_1);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_1);
+			printImage("../imgs/default.jpg", 0, valla_1);
 			valla.finPeticion(tiempo, n_valla);
 		}
 

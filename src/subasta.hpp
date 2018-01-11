@@ -28,7 +28,7 @@ class Subasta{
 
 		// Funciones
     void iniciarSubasta(const int precio, const int tiempo);  //entra el subastador
-    int entrarSubasta();   //los threads que atienden espera a que se inicia
+    int entrarSubasta(const int i);   //los threads que atienden espera a que se inicia
     void cerrarSubasta();
 		void cerrarServicio();
     int pujar(const int id, const int precio);
