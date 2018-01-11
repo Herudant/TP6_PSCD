@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	signal(SIGINT, handler);
 
 	// Descargamos la imagen por defecto
-	char ruta[100] = "../imgs/default.jpg";
+	char ruta[100] = "imgs/default.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
 
 	ImageDownloader downloader;
@@ -280,14 +280,14 @@ void gestor_valla(Valla& valla)
 	int tiempo, n_valla;
 	string URL, msg;
 
-	char ruta[100] = "../imgs/image.jpg";
+	char ruta[100] = "imgs/image.jpg";
 	char cURL[400] = "";
 
   #ifdef VERBOSE
 	cout << "CREANDO VALLA 1\n";
   #endif
 	// VALLA_1
-	cimg_library::CImg<unsigned char> img_("../imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
 	cimg_library::CImgDisplay valla_0(img_.resize(_WIDTH, _HEIGHT),"VALLA 0");
 	valla_0.resize(_WIDTH, _HEIGHT);
 	valla_0.move(0, 0); // Esquina superior izquierda
@@ -328,7 +328,7 @@ void gestor_valla(Valla& valla)
 			printImage(ruta, tiempo, valla_0);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("../imgs/default.jpg", 0, valla_0);
+			printImage("imgs/default.jpg", 0, valla_0);
 			valla.finPeticion(tiempo, n_valla);
 		} else{
 			#ifdef VERBOSE
@@ -337,7 +337,7 @@ void gestor_valla(Valla& valla)
 			printImage(ruta, tiempo, valla_1);
 
 			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("../imgs/default.jpg", 0, valla_1);
+			printImage("imgs/default.jpg", 0, valla_1);
 			valla.finPeticion(tiempo, n_valla);
 		}
 
