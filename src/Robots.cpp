@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
   bool fin, out;
 
   // Hacemos las peticiones
-	do{
+  do{
 		bool ganador = false;
 		string buffer;
 		string mensaje;
@@ -106,8 +106,9 @@ int main(int argc, char *argv[]) {
 		fin = false;
 		while(!out){
 			//se envia una puja
-			mensaje = getLine_puja();
-			send_msg(socket_fd, socket, mensaje);
+      int precio_rand = rand() % 200 + 5;
+      int tiempo_subasta = rand() % 6  + 2;
+			send_msg(socket_fd, socket, to_string(precio_rand));
 
 			if(mensaje == MENS_FIN_PUJA){
 				out = true;
@@ -134,6 +135,7 @@ int main(int argc, char *argv[]) {
 					cout << "Su puja no ha superado la puja actual mas alta\n";
 					cout << "Precio actual de la subasta: " << precio << endl;
 					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+          this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 				}
 				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
 				// aviso
@@ -160,6 +162,7 @@ int main(int argc, char *argv[]) {
 						cout << "Su puja ha sido superada por otro participante " << endl;
 						cout << "Precio actual de la subasta: " << precio << endl;
 						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+            this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 					}
 					else{
 						out = true;

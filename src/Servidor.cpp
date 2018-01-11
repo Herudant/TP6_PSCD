@@ -182,12 +182,14 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 	// Mientras dura el servicio de subastas
 	while(!FIN_SERVICIO || !fin_cliente){
 
+		string msg;
 		// Esperamos a que se inicie una subasta
-		int ultimo_precio;
+		int ultimo_precio, tiempo_subasta;
 		ultimo_precio = subasta.entrarSubasta(num_subasta);
-
+		tiempo_subasta = subasta.getTiempo_subasta(){;
+		msg = to_string(ultimo_precio) + "#" + to_string(tiempo_subasta);
 		//notificar al cliente de la subasta
-		send_msg(client_fd, ref(socket), to_string(ultimo_precio));
+		send_msg(client_fd, ref(socket), msg);
 
 		out = false;
 		while(!out) {
