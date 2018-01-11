@@ -7,5 +7,5 @@ URLS = ("1", "2", "3")
 
 for i in {1..3}
 do
-	xterm -e ./bin/Cliente $1 $2  ${URLS[i]} &
+	xterm -e ./bin/Cliente $1 $2 ${URLS[i]} "auto" &
 done

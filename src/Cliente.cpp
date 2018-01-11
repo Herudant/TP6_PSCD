@@ -47,8 +47,8 @@ const string MENS_FIN_PUJA("PASAR SUBASTA");
 /*----------------------------------------------------------------------------*/
 int main(int argc, char *argv[]) {
 
-	if(argc != 3){
-		cout << "Error: Se esperaba ./Cliente <IP> <Puerto> <URL>\n";
+	if(argc != 3 || argc != 4){
+		cout << "Error: Se esperaba ./Cliente <IP> <Puerto> <URL> [<auto>]\n";
 		exit(1);
 	}
 
@@ -56,6 +56,11 @@ int main(int argc, char *argv[]) {
   string SERVER_ADDRESS = argv[1];
   int SERVER_PORT = atoi(argv[2]);
 	string URL = argv[3];
+  bool AUTO = false;
+  if(argc == 4){
+    AUTO = true;
+  }
+
 
 	// Creación del socket con el que se llevará a cabo
 	// la comunicación con el servidor.
@@ -106,7 +111,12 @@ int main(int argc, char *argv[]) {
 		fin = false;
 		while(!out){
 			//se envia una puja
-			mensaje = getLine_puja();
+			if(AUTO){
+				int precio_rand = rand() % 200 + 5;
+				mensaje = to_string(precio_rand);
+			}else{
+				mensaje = getLine_puja();
+			}
 			send_msg(socket_fd, socket, mensaje);
 
 			if(mensaje == MENS_FIN_PUJA){
@@ -134,6 +144,10 @@ int main(int argc, char *argv[]) {
 					cout << "Su puja no ha superado la puja actual mas alta\n";
 					cout << "Precio actual de la subasta: " << precio << endl;
 					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+					if(AUTO){
+						int tiempo_subasta = rand() % 6  + 2;
+						this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
+					}
 				}
 				//se ha superado la puja maxima, por lo que eres el ganador hasta nuevo
 				// aviso
@@ -160,6 +174,10 @@ int main(int argc, char *argv[]) {
 						cout << "Su puja ha sido superada por otro participante " << endl;
 						cout << "Precio actual de la subasta: " << precio << endl;
 						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+						if(AUTO){
+							int tiempo_subasta = rand() % 6  + 2;
+							this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
+						}
 					}
 					else{
 						out = true;
