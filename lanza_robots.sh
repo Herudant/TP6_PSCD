@@ -1,6 +1,7 @@
 #! /bin/bash
 if [ "$#" -ne 2 ]; then
     echo "Se esperaba ./lanza_robots <IP> <PUERTO>"
+    exit 1
 fi
 
 URLS = ("1", "2", "3")
