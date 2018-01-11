@@ -4,7 +4,7 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-URLS = ("1", "2", "3")
+URLS=("1" "2" "3")
 
 for i in {1..3}
 do
