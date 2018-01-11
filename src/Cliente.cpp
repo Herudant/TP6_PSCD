@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 		cout << "Esperando a que se inicie una puja ..." << endl;
 		//esperar a recibir la señal de inicio de una puja y su precio
 		buffer = recv_msg(socket_fd, socket);
-		auto respuesta = decodificar(buffer, '#'):
+		auto respuesta = decodificar(buffer, '#');
 
 		cout << "||| Puja activa ||| ==> Precio de subasta: " << respuesta.at(0)
 		     << "  --- Tiempo subastado: " << respuesta.at(1) << endl;
