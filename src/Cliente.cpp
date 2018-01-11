@@ -46,8 +46,7 @@ const string MENS_FIN_PUJA("PASAR SUBASTA");
 
 /*----------------------------------------------------------------------------*/
 int main(int argc, char *argv[]) {
-
-	if(argc != 3 || argc != 4){
+	if(argc < 4){
 		cout << "Error: Se esperaba ./Cliente <IP> <Puerto> <URL> [<auto>]\n";
 		exit(1);
 	}
@@ -57,7 +56,7 @@ int main(int argc, char *argv[]) {
   int SERVER_PORT = atoi(argv[2]);
 	string URL = argv[3];
   bool AUTO = false;
-  if(argc == 4){
+  if(argc == 5){
     AUTO = true;
   }
 
