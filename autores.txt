@@ -7,51 +7,51 @@ NIP 	Apellidos 		Nombre
 
 Resumen de tiempo invertido
 -----------------------------------------------------------------
-NIP	    Actividad			Tiempo		Dia
+NIP				Actividad											Tiempo		Dia
 -----------------------------------------------------------------
-728502	    Planteamiento de la 	6h		1
-	    estructura del sistema
+728502	  Planteamiento de la 					6h				1
+	    		estructura del sistema
 
-718743	    Planteamiento de la 	6h		1
-	    estructura del sistema
+718743	  Planteamiento de la 					6h				1
+	    		estructura del sistema
 
-719378	    Planteamiento de la 	6h		1
-	    estructura del sistema
+719378	  Planteamiento de la 					6h				1
+	    		estructura del sistema
 
-728502	    Perfeccionamiento del 	3h		2
-	    planteamiento previo
-	    básico del Servidor
+728502	  Perfeccionamiento del 				3h				2
+	    		planteamiento previo
+	    		bï¿½sico del Servidor
 
-718743	    Perfeccionamiento del 	5h		3
-	    planteamiento previo
-	    básico del Cliente
+718743	 	Perfeccionamiento del 				5h				3
+	    		planteamiento previo
+	    		bï¿½sico del Cliente
 
-728502	    Creación de los modulos 	5h		4
-	    adicionales (subasta, 
-	    vallas, etc) + Depuración y
-	    perfeccionamiento del
-	    código completo
+728502	  Creaciï¿½n de los modulos 			5h				4
+	    		adicionales (subasta,
+	    		vallas, etc) + Depuraciï¿½n y
+	    		perfeccionamiento del
+	    		cï¿½digo completo
 
-718743	    Creación de los modulos 	5h		4
-	    adicionales (subasta, 
-	    vallas, etc) + Depuración y
-	    perfeccionamiento del
-	    código completo
+718743	  Creaciï¿½n de los modulos 			5h				4
+			    adicionales (subasta,
+			    vallas, etc) + Depuraciï¿½n y
+			    perfeccionamiento del
+			    cï¿½digo completo
 
-719378	    Creación de los modulos 	5h		4
-	    adicionales (subasta, 
-	    vallas, etc) + Depuración y
-	    perfeccionamiento del
-	    código completo
+719378	  Creaciï¿½n de los modulos 			5h				4
+			    adicionales (subasta,
+			    vallas, etc) + Depuraciï¿½n y
+			    perfeccionamiento del
+			    cï¿½digo completo
 
-728502	    Puesta a punto y creación	2h		5
-	    de ficheros de texto
+728502	  Puesta a punto y creaciï¿½n			2h				5
+	    		de ficheros de texto
 
-718743	    Puesta a punto y creación	2h		5
-	    de ficheros de texto
+718743	  Puesta a punto y creaciï¿½n			2h				5
+	    		de ficheros de texto
 
-719378	    Puesta a punto y creación	2h		5
-	    de ficheros de texto
+719378	  Puesta a punto y creaciï¿½n			2h				5
+	    		de ficheros de texto
 
 
-TOTAL					47HORAS
+TOTAL																		47 HORAS
