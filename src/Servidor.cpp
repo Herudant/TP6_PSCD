@@ -356,8 +356,7 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 	cimg_library::CImg<unsigned char> img_sec(rutaIMG);
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
-	if(tiempo > 0)
-		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
+
 }
 
 // Muestra información del sistema en un fichero de log
