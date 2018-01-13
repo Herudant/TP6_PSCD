@@ -210,7 +210,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			}
 			else {
 				// Cliente hace puja, si devuelve -1 soy ganador
-				int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
+
 
 				int tiempo_subasta = subasta.getTiempo_subasta();
 				// Enviamos la respuesta
@@ -230,6 +230,8 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 					out = true;
 				}
 				else {
+					int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
+					
 					resp = (precio_ganador == -1) ? "GANADOR#"  + buffer :
 																					"PERDEDOR#" + to_string(precio_ganador);
 					send_msg(client_fd, ref(socket), resp);
