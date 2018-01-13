@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	char MENS_FIN[]="END OF SERVICE";
 	// Puerto donde escucha el proceso servidor
   int SERVER_PORT = atoi(argv[1]);
 
