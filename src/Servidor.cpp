@@ -361,8 +361,8 @@ void printImage(const string ruta, int tiempo, int n_valla,
 
 	cout << "MOSTRANDO POR DEFECTO...\n";
   // Mostramos valla por defecto
-	cimg_library::CImg<unsigned char> img_sec("imgs/default.jpg");
-	v.render(img_sec.resize(_WIDTH, _HEIGHT));
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	v.render(img_.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
 }
 
