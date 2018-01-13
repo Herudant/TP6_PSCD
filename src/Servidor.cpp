@@ -448,7 +448,7 @@ void subastador(Subasta& subasta)
 	subasta.dormirLider();
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
-		int tiempo_subasta = 2;
+		int tiempo_subasta = 30;
 		#ifdef VERBOSE
 			cout << "INICIANDO SUBASTA(" << to_string(subasta.getNum_subastas()) << "): " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
@@ -456,7 +456,7 @@ void subastador(Subasta& subasta)
 
 		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
 
-		int duracion_subasta = 3;
+		int duracion_subasta = 10;
 		this_thread::sleep_for(chrono::milliseconds(duracion_subasta *1000));
 
 		#ifdef VERBOSE
