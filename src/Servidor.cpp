@@ -79,7 +79,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	char MENS_FIN[]="END OF SERVICE";
 	// Puerto donde escucha el proceso servidor
   int SERVER_PORT = atoi(argv[1]);
 
@@ -422,7 +421,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 		else if (mensaje == MENS_INICIO && !empezado) {
 			cout << "Mensaje de inicio 'START' recibido, empezando las subastas\n";
 			subasta.despertar();
-			empazado  = true;
+			empezado  = true;
 		}
 		else {
 			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:"
