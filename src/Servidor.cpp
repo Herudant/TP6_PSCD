@@ -328,13 +328,13 @@ void gestor_valla(Valla& valla)
 			#ifdef VERBOSE
 				cout << "Modificando valla 0\n";
 			#endif
-			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_0), ref(valla));
+			thread t (&printImage, ruta, tiempo, n_valla, ref(valla_0), ref(valla));
 			t.detach();
 		} else{
 			#ifdef VERBOSE
 				cout << "Modificando valla 1\n";
 			#endif
-			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_1), ref(valla));
+			thread t (&printImage, ruta, tiempo, n_valla, ref(valla_1), ref(valla));
 			t.detach();
 		}
 
