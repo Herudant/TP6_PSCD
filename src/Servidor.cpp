@@ -355,7 +355,7 @@ void printImage(const string ruta, time_t tiempo, int n_valla,
 	if(tiempo > 0){
 		cout << "DURMIENDO THREAD...\n";
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
-		cout << "DURMIENDO THREAD...\n";
+		cout << "DESPIERTO THREAD...\n";
 		valla.finPeticion(tiempo, n_valla);
 	}
 
