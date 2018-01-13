@@ -39,7 +39,7 @@ void subastador(Subasta& subasta);
 void administrador(int fd, Socket& socket, Subasta& subasta, Valla& valla);
 
 // Imprime una imagen en una ventana durante un tiempo
-void printImage(const string ruta, time_t tiempo, int n_valla,
+void printImage(const string ruta, int tiempo, int n_valla,
 							  cimg_library::CImgDisplay& v, Valla& valla);
 
 // Captura señal de interrupcion para evitar cerrar el servidor
@@ -343,7 +343,7 @@ void gestor_valla(Valla& valla)
 }
 
 // Imprime una imagen en una ventana durante un tiempo
-void printImage(const string ruta, time_t tiempo, int n_valla,
+void printImage(const string ruta, int tiempo, int n_valla,
 	 							cimg_library::CImgDisplay& v, Valla& valla)
 {
 	char rutaIMG[100];
