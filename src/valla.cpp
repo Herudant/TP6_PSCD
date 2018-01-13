@@ -63,7 +63,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 			break;
 		}
 	}
-
+  cout << "\t\t\tventana =" << n_vetana << endl;
 	// Saco la peticion de la cola y actualizo variables estadisticas
 	auto peticion = peticiones.front();
 	this -> peticiones.pop();
