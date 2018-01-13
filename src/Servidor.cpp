@@ -38,7 +38,6 @@ void subastador(Subasta& subasta);
 
 void administrador(int fd, Socket& socket, Subasta& subasta, Valla& valla);
 
-
 // Imprime una imagen en una ventana durante un tiempo
 void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v);
 
@@ -210,8 +209,6 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			}
 			else {
 				// Cliente hace puja, si devuelve -1 soy ganador
-
-
 				int tiempo_subasta = subasta.getTiempo_subasta();
 				// Enviamos la respuesta
 				string resp;
@@ -231,7 +228,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 				}
 				else {
 					int precio_ganador = subasta.pujar(id, atoi(buffer.c_str()));
-					
+
 					resp = (precio_ganador == -1) ? "GANADOR#"  + buffer :
 																					"PERDEDOR#" + to_string(precio_ganador);
 					send_msg(client_fd, ref(socket), resp);
@@ -447,7 +444,7 @@ void subastador(Subasta& subasta)
 		int precio_subasta = rand() % 200 + 5;
 		int tiempo_subasta = rand() % 50  + 30;
 		#ifdef VERBOSE
-			cout << "INICIANDO SUBASTA: " << precio_subasta << "€, "
+			cout << "INICIANDO SUBASTA(" << subasta.getNum_subastas() << "): " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
 		#endif
 
