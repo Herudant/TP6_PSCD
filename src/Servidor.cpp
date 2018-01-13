@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 	thread t_valla(&gestor_valla, ref(valla));
 	t_valla.detach();
 	#ifdef VERBOSE
-	cout << "VALLA LANZADO\n";
+	cout << "GESTOR_VALLA LANZADO\n";
 	#endif
 	// Lanzar thread subasta
 	thread t_subastador(&subastador, ref(subasta));
@@ -203,7 +203,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			}
 			else if (buffer == MENS_FIN){
 				out = true;
-				fin_cliente = true;
+				fin_cliente = true;		// finalizar servicio del cliente
 			}
 			else {
 				// Cliente hace puja, si devuelve -1 soy ganador
@@ -358,8 +358,7 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 }
 
-// Muestra información del sistema en un fichero de log
-// y se encarga de la terminación ordenada del servicio
+
 void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
 	string mensaje;

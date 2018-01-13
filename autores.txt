@@ -10,13 +10,9 @@ Resumen de tiempo invertido
 NIP				Actividad											Tiempo		Dia
 -----------------------------------------------------------------
 728502	  Planteamiento de la 					6h				1
-	    		estructura del sistema
+718743	  estructura del sistema
+719378
 
-718743	  Planteamiento de la 					6h				1
-	    		estructura del sistema
-
-719378	  Planteamiento de la 					6h				1
-	    		estructura del sistema
 
 728502	  Perfeccionamiento del 				3h				2
 	    		planteamiento previo
