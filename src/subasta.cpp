@@ -38,6 +38,7 @@ void Subasta::despertar(){
   espera.notify_one();
 }
 
+
 void Subasta::cerrarSubasta(){
   unique_lock<mutex> lck(mtx);
   this -> activa = false;
