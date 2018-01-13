@@ -444,7 +444,7 @@ void subastador(Subasta& subasta)
 		int precio_subasta = rand() % 200 + 5;
 		int tiempo_subasta = rand() % 50  + 30;
 		#ifdef VERBOSE
-			cout << "INICIANDO SUBASTA(" << subasta.getNum_subastas() << "): " << precio_subasta << "€, "
+			cout << "INICIANDO SUBASTA(" << to_string(subasta.getNum_subastas()) << "): " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
 		#endif
 
