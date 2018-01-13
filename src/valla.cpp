@@ -55,7 +55,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 	while(this->n_libres == 0)
 		espera_ventana.wait(lck);
 	cout << "\t\t\tatendiendo n_libres =" << this->n_libres << endl;
-	int n_ventana;
+	int n_ventana = -1;
 	for(int i = 0; i < MAX_VENTANAS; ++i){
 		if(this->ventanas_libres[i]){
 			this->ventanas_libres[i] = false;
