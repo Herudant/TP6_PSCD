@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 	thread t_valla(&gestor_valla, ref(valla));
 	t_valla.detach();
 	#ifdef VERBOSE
-	cout << "GESTOR_VALLA LANZADO\n";
+	cout << "VALLA LANZADO\n";
 	#endif
 	// Lanzar thread subasta
 	thread t_subastador(&subastador, ref(subasta));
@@ -203,7 +203,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 			}
 			else if (buffer == MENS_FIN){
 				out = true;
-				fin_cliente = true;		// finalizar servicio del cliente
+				fin_cliente = true;
 			}
 			else {
 				// Cliente hace puja, si devuelve -1 soy ganador
@@ -358,12 +358,14 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 }
 
-
+// Muestra información del sistema en un fichero de log
+// y se encarga de la terminación ordenada del servicio
 void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
 	string mensaje;
 	time_t tiempo_total, tiempo_contratado, tiempo_imagenes;
 	int num_peticiones, num_imagenes;
+	bool empezado = false;
 	while(1){
 		getline(cin,mensaje);
 		if (mensaje == "END OF SERVICE"){
@@ -414,6 +416,10 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 <<	"\n---------------------------------------------------------------\n";
 			//valla.write(msg, ref(fs));
 		}
+		else if (mensaje == "START" && !empezado) {
+			cout << "Mensaje de inicio 'START' recibido, empezando las subastas\n";
+			subasta.despertar();
+		}
 		else {
 			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:\n"
 					 << "\t1. PRINT HISTORICA\n"
@@ -429,6 +435,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 void subastador(Subasta& subasta)
 {
 	srand(time(NULL));
+	subasta.dormirLider();
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
 		int tiempo_subasta = rand() % 20  + 2;

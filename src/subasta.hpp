@@ -34,8 +34,8 @@ class Subasta{
     int pujar(const int id, const int precio);
     void dormirLider();
 		void avisarSubastador();
+		void despertar();
 		bool maxSubastas(const int max);
-
 
 	private:
 		mutex mtx;
