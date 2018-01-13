@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
 	// Descargamos la imagen por defecto
 	char ruta[100] = "imgs/default.jpg";
 	char cURL[500] = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Insert_image_here.svg/1280px-Insert_image_here.svg.png";
+	FIN_SERVICIO = false;
 
 	ImageDownloader downloader;
 	downloader.downloadImage(cURL, ruta);
@@ -448,7 +449,7 @@ void subastador(Subasta& subasta)
 	subasta.dormirLider();
 	while(!FIN_SERVICIO && !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
-		int tiempo_subasta = 30;
+		int tiempo_subasta = 2;
 		#ifdef VERBOSE
 			cout << "INICIANDO SUBASTA(" << to_string(subasta.getNum_subastas()) << "): " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
@@ -456,7 +457,7 @@ void subastador(Subasta& subasta)
 
 		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
 
-		int duracion_subasta = 10;
+		int duracion_subasta = 3;
 		this_thread::sleep_for(chrono::milliseconds(duracion_subasta *1000));
 
 		#ifdef VERBOSE
