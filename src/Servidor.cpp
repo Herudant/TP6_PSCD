@@ -422,7 +422,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 		else if (mensaje == MENS_INICIO && !empezado) {
 			cout << "Mensaje de inicio 'START' recibido, empezando las subastas\n";
 			subasta.despertar();
-			empazado  = true;
+			empezado  = true;
 		}
 		else {
 			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:"
