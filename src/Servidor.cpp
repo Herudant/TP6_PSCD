@@ -426,10 +426,12 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 			empazado  = true;
 		}
 		else {
-			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:\n"
-					 << "\t1. PRINT HISTORICA\n"
-					 << "\t2. PRINT ESTADO\n"
-					 << "\t3. END OF SERVICE\n";
+			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:"
+					 << "\n\t1. " << MENS_INICIO << "(solo una vez al inicio)"
+					 << "\n\t2. " << MENS_FIN
+					 << "\n\t2. " << MENS_HISTORICO
+					 << "\n\t3. " << MENS_ESTADO << endl;
+
 		}
 	}
 
@@ -444,7 +446,7 @@ void subastador(Subasta& subasta)
 	subasta.dormirLider();
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
-		int tiempo_subasta = rand() % 20  + 2;
+		int tiempo_subasta = rand() % 30  + 30;
 		#ifdef VERBOSE
 			cout << "INICIANDO SUBASTA: " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
