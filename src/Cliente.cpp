@@ -128,7 +128,10 @@ int main(int argc, char *argv[]) {
 				respuesta = decodificar(buffer, '#');
 
 				string msg_code = respuesta.at(0);
-				string precio = respuesta.at(1);
+
+				if(respuesta.size >= 2){
+					string precio = respuesta.at(1);
+				}
 
 				//si se ha cerrado ya la subasta
 				if (msg_code == "SUBASTA_CERRADA"){
@@ -155,7 +158,9 @@ int main(int argc, char *argv[]) {
 					respuesta = decodificar(buffer, '#');
 
 					msg_code = respuesta.at(0);
-					precio = respuesta.at(1);
+					if(respuesta.size >= 2){
+						precio = respuesta.at(1);
+					}
 
 					//eres el ganador definitivo
 					if (msg_code == "FIN_GANADOR"){
