@@ -337,8 +337,6 @@ void gestor_valla(Valla& valla)
 			t.detach();
 		}
 
-		valla.finPeticion(tiempo, n_valla);
-
 	}
 
 }
@@ -352,9 +350,10 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 	cimg_library::CImg<unsigned char> img_sec(rutaIMG);
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
-	if(tiempo > 0)
+	if(tiempo > 0){
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
-
+		valla.finPeticion(tiempo, n_valla);
+	}
   // Mostramos valla por defecto
 	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
