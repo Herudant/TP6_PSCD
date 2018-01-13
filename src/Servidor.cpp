@@ -327,21 +327,17 @@ void gestor_valla(Valla& valla)
 			#ifdef VERBOSE
 				cout << "Modificando valla 0\n";
 			#endif
-			printImage(ruta, tiempo, valla_0);
-
-			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_0);
-			valla.finPeticion(tiempo, n_valla);
+			thread t (&printImage, ruta, tiempo, ref(valla_0));
+			t.detach();
 		} else{
 			#ifdef VERBOSE
 				cout << "Modificando valla 1\n";
 			#endif
-			printImage(ruta, tiempo, valla_1);
-
-			//Avisamos de la finalizacion y mostramos valla por defecto
-			printImage("imgs/default.jpg", 0, valla_1);
-			valla.finPeticion(tiempo, n_valla);
+			thread t (&printImage, ruta, tiempo, ref(valla_1));
+			t.detach();
 		}
+
+		valla.finPeticion(tiempo, n_valla);
 
 	}
 
@@ -356,7 +352,13 @@ void printImage(const string ruta, time_t tiempo, cimg_library::CImgDisplay& v)
 	cimg_library::CImg<unsigned char> img_sec(rutaIMG);
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
+	if(tiempo > 0)
+		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
 
+  // Mostramos valla por defecto
+	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	v.render(img_sec.resize(_WIDTH, _HEIGHT));
+	v.paint(); // Repintar nueva imagen en la valla
 }
 
 // Muestra información del sistema en un fichero de log
