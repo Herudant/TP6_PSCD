@@ -59,6 +59,12 @@ const int MAX_SUBASTAS = 2;		 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
+const string MENS_FIN("EOF");  			// End of Service
+const string MENS_FIN_PUJA("EOB");  // End of Bid
+const string MENS_HISTORICO("PRINTH");
+const string MENS_ESTADO("PRINTS");
+const string MENS_INICIO("START");
+
 atomic_bool FIN_SERVICIO = ATOMIC_VAR_INIT(false);	// indica la terminación del servicio
 /*----------------------------------------------------------------------------*/
 
@@ -170,8 +176,6 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 								Valla& valla, const int id)
 {
 	int error_code;
-	const string MENS_FIN("END OF SERVICE");
-	const string MENS_FIN_PUJA("PASAR SUBASTA");
 
 	// Buffer para recibir el mensaje
 	string buffer;
@@ -368,7 +372,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 	bool empezado = false;
 	while(1){
 		getline(cin,mensaje);
-		if (mensaje == "END OF SERVICE"){
+		if (mensaje == MENS_FIN){
 			#ifdef VERBOSE
 				cout << "END OF SERVICE DETECTADO\n";
 			#endif
@@ -393,7 +397,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 
 			break;
 		}
-		else if (mensaje =="PRINT HISTORICA"){
+		else if (mensaje == MENS_HISTORICO){
 			// Mostrar información histórica del sistema (num imagenes y tiempo)
 			tiempo_imagenes = valla.getTiempo_imagenes_mostradas();
 			num_imagenes = valla.getNum_imagenes();
@@ -404,7 +408,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 			//valla.write(msg, ref(fs));
 
 		}
-		else if (mensaje == "PRINT ESTADO"){
+		else if (mensaje == MENS_ESTADO){
 			// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
 			num_peticiones = valla.getNum_peticiones();
 			tiempo_contratado = valla.getTiempo_estimado();
@@ -416,9 +420,10 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 <<	"\n---------------------------------------------------------------\n";
 			//valla.write(msg, ref(fs));
 		}
-		else if (mensaje == "START" && !empezado) {
+		else if (mensaje == MENS_INICIO && !empezado) {
 			cout << "Mensaje de inicio 'START' recibido, empezando las subastas\n";
 			subasta.despertar();
+			empazado  = true;
 		}
 		else {
 			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:\n"

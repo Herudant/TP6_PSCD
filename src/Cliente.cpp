@@ -40,8 +40,8 @@ string getLine_puja();
 
 /*--------------- Variables globales del sistema  ----------------------------*/
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
-const string MENS_FIN("END OF SERVICE");
-const string MENS_FIN_PUJA("PASAR SUBASTA");
+const string MENS_FIN("EOF");  			// End of Service
+const string MENS_FIN_PUJA("EOB");  // End of Bid
 /*----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
