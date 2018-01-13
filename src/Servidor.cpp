@@ -183,7 +183,7 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 	int num_subasta = subasta.getNum_subastas();
 
 	// Mientras dura el servicio de subastas
-	while(!FIN_SERVICIO || !fin_cliente){
+	while(!FIN_SERVICIO && !fin_cliente){
 
 		string msg;
 		// Esperamos a que se inicie una subasta
@@ -446,7 +446,7 @@ void subastador(Subasta& subasta)
 	srand(time(NULL));
 	cout << "Servidor preparado, cuando desee comenzar escriba 'START'\n";
 	subasta.dormirLider();
-	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
+	while(!FIN_SERVICIO && !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
 		int tiempo_subasta = 2;
 		#ifdef VERBOSE
