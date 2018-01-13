@@ -72,7 +72,7 @@ tuple<int, string, int> Valla::atenderPeticion() {
 
 
 	// Devuelvo el número de ventana y la peticion
-	auto ret = make_tuple(n_ventana, get<0>(peticion), get<1>(peticion));
+	tuple<int, string, int> ret = make_tuple(n_ventana, get<0>(peticion), get<1>(peticion));
 	return ret;
 
 }
