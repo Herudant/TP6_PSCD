@@ -353,11 +353,15 @@ void printImage(const string ruta, time_t tiempo, int n_valla,
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
 	if(tiempo > 0){
+		cout << "DURMIENDO THREAD...\n";
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
+		cout << "DURMIENDO THREAD...\n";
 		valla.finPeticion(tiempo, n_valla);
 	}
+
+	cout << "MOSTRANDO POR DEFECTO...\n";
   // Mostramos valla por defecto
-	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
+	cimg_library::CImg<unsigned char> img_sec("imgs/default.jpg");
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
 }
