@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
 		cout << "\n--------------------------------------------------------------\n"
 		     << "||| Puja activa ||| ==> Precio de subasta: " << respuesta.at(0)
-		     << "  --- Tiempo subastado: " << respuesta.at(1) << endl;
+		     << "  --- Tiempo subastado: " << respuesta.at(1) << endl
 		     << "Escribir '" << MENS_FIN_PUJA << "'' para no participar\n"
 		     << "\n--------------------------------------------------------------\n";
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 
 				string msg_code = respuesta.at(0);
 				string precio;
-				if(respuesta.size >= 2){
+				if(respuesta.size() >= 2){
 					precio = respuesta.at(1);
 				}
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
 				}
 				//si hno se ha superado la puja maxima
 				else if (msg_code == "PERDEDOR"){
-					cout << "Su puja no ha superado la puja actual mas alta\n";
+					cout << "Su puja no ha superado la puja actual mas alta\n"
 					     << "Precio actual de la subasta: " << precio << endl;
 
 					if(AUTO){
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 					respuesta = decodificar(buffer, '#');
 
 					msg_code = respuesta.at(0);
-					if(respuesta.size >= 2){
+					if(respuesta.size() >= 2){
 						precio = respuesta.at(1);
 					}
 
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
 					}
 					//tu puja ha sido superada
 					else if (msg_code == "NUEVO_GANADOR"){
-						cout << "Su puja ha sido superada por otro participante\n";
+						cout << "Su puja ha sido superada por otro participante\n"
 						     << "Precio actual de la subasta: " << precio << endl;
 						if(AUTO){
 							int tiempo_subasta = rand() % 20 + 25;
