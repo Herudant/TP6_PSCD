@@ -435,6 +435,7 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 void subastador(Subasta& subasta)
 {
 	srand(time(NULL));
+	cout << "Servidor preparado, cuando desee comenzar escriba 'START'\n";
 	subasta.dormirLider();
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
