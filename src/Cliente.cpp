@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 					     << "Precio actual de la subasta: " << precio << endl;
 
 					if(AUTO){
-						int tiempo_subasta = 1; //rand() % 20 + 25;
+						int tiempo_subasta = rand() % 20 + 25;
 						this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 					}
 				}

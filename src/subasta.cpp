@@ -33,6 +33,11 @@ void Subasta::iniciarSubasta(const int precio, const int tiempo){
   }
 }
 
+void Subasta::despertar(){
+  unique_lock<mutex> lck(mtx);
+  espera.notify_one();
+}
+
 void Subasta::cerrarSubasta(){
   unique_lock<mutex> lck(mtx);
   this -> activa = false;
