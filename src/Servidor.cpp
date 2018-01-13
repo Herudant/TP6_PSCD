@@ -406,7 +406,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 <<	"\n\tTiempo de imagenes mostradas: " << to_string(tiempo_imagenes)
 			     << "\n---------------------------------------------------------------\n";
 			//valla.write(msg, ref(fs));
-
 		}
 		else if (mensaje == MENS_ESTADO){
 			// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
@@ -431,7 +430,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 << "\n\t2. " << MENS_FIN
 					 << "\n\t2. " << MENS_HISTORICO
 					 << "\n\t3. " << MENS_ESTADO << endl;
-
 		}
 	}
 
@@ -446,7 +444,7 @@ void subastador(Subasta& subasta)
 	subasta.dormirLider();
 	while(!FIN_SERVICIO || !subasta.maxSubastas(MAX_SUBASTAS)){
 		int precio_subasta = rand() % 200 + 5;
-		int tiempo_subasta = rand() % 30  + 30;
+		int tiempo_subasta = rand() % 50  + 30;
 		#ifdef VERBOSE
 			cout << "INICIANDO SUBASTA: " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
@@ -454,7 +452,7 @@ void subastador(Subasta& subasta)
 
 		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
 
-		int duracion_subasta = rand() % 20 + 10;
+		int duracion_subasta = rand() % 20 + 25;
 		this_thread::sleep_for(chrono::milliseconds(duracion_subasta *1000));
 
 		#ifdef VERBOSE

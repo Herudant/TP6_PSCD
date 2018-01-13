@@ -102,9 +102,11 @@ int main(int argc, char *argv[]) {
 		buffer = recv_msg(socket_fd, socket);
 		auto respuesta = decodificar(buffer, '#');
 
-		cout << "||| Puja activa ||| ==> Precio de subasta: " << respuesta.at(0)
+		cout << "\n--------------------------------------------------------------\n"
+		     << "||| Puja activa ||| ==> Precio de subasta: " << respuesta.at(0)
 		     << "  --- Tiempo subastado: " << respuesta.at(1) << endl;
-		cout << "Escribir 'EOB' para no participar\n";
+		     << "Escribir '" << MENS_FIN_PUJA << "'' para no participar\n"
+		     << "\n--------------------------------------------------------------\n";
 
 		out = false;
 		fin = false;
@@ -136,10 +138,10 @@ int main(int argc, char *argv[]) {
 				//si hno se ha superado la puja maxima
 				else if (msg_code == "PERDEDOR"){
 					cout << "Su puja no ha superado la puja actual mas alta\n";
-					cout << "Precio actual de la subasta: " << precio << endl;
-					cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+					     << "Precio actual de la subasta: " << precio << endl;
+
 					if(AUTO){
-						int tiempo_subasta = rand() % 6  + 2;
+						int tiempo_subasta = rand() % 20 + 25;
 						this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 					}
 				}
@@ -154,22 +156,22 @@ int main(int argc, char *argv[]) {
 
 					msg_code = respuesta.at(0);
 					precio = respuesta.at(1);
-					cout << "la respuesta recibida es: " << msg_code << endl;
+
 					//eres el ganador definitivo
 					if (msg_code == "FIN_GANADOR"){
 						cout << "Enhorabuena! Es usted el ganador de la subasta.\n"
-						     << "Enviando URL de imagen al servidor...\n";
+						     << "Enviando URL de imagen al servidor...\n"
+								 << "\n-----------------------------------------------------\n";
 						send_msg(socket_fd, socket, URL);
 						ganador = true;
 						out = true;
 					}
 					//tu puja ha sido superada
 					else if (msg_code == "NUEVO_GANADOR"){
-						cout << "Su puja ha sido superada por otro participante " << endl;
-						cout << "Precio actual de la subasta: " << precio << endl;
-						cout << "Quiere volver a pujar? ('PASAR SUBASTA' para salir)\n";
+						cout << "Su puja ha sido superada por otro participante\n";
+						     << "Precio actual de la subasta: " << precio << endl;
 						if(AUTO){
-							int tiempo_subasta = rand() % 6  + 2;
+							int tiempo_subasta = rand() % 20 + 25;
 							this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 						}
 					}
