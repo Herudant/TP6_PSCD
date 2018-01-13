@@ -125,8 +125,10 @@ int main(int argc, char *argv[]) {
 				buffer = recv_msg(socket_fd, socket);
 				respuesta = decodificar(buffer, '#');
 
-				string msg_code = respuesta.at(0);
-				string precio = respuesta.at(1);
+				if(respuesta.size() == 2){
+					string msg_code = respuesta.at(0);
+					string precio = respuesta.at(1);
+			  }
 
 				//si se ha cerrado ya la subasta
 				if (msg_code == "SUBASTA_CERRADA"){
