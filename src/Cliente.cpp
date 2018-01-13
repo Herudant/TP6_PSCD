@@ -111,7 +111,8 @@ int main(int argc, char *argv[]) {
 		while(!out){
 			//se envia una puja
 			mensaje = (AUTO) ? (to_string(rand() % 200 + 5)) : getLine_puja();
-
+			send_msg(socket_fd, socket, mensaje);
+			
 			if(mensaje == MENS_FIN_PUJA){
 				out = true;
 			}
