@@ -4,4 +4,4 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
-./bin/Cliente $1 $2 $3
+./bin/Cliente $1 $2 $3  #http://www.edsaplan.com/files/media-image/portfolio/hilton-yuxi-fuxian-lake-2400.jpg
