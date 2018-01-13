@@ -1,4 +1,4 @@
-//============================================================================
+///============================================================================
 // Name        : .h
 // Author      :
 // Description :
@@ -90,10 +90,6 @@ void Subasta::avisarSubastador(){
   espera_ganador.notify_one();
 }
 
-void Subasta::despertar(){
-  unique_lock<mutex> lck(mtx);
-  espera.notify_one();
-}
 
 bool Subasta::maxSubastas(const int max){
   unique_lock<mutex> lck(mtx);
