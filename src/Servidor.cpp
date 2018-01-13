@@ -55,7 +55,7 @@ string recv_msg(const int client_fd, Socket& socket);
 /*--------------- Variables globales del sistema  ----------------------------*/
 
 const int MESSAGE_SIZE = 4001;      // mensajes de no más 4000 caracteres
-const int MAX_SUBASTAS = 10		 		  // numero máximo de subastas del servicio
+const int MAX_SUBASTAS = 10;	 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
