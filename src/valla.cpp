@@ -47,13 +47,14 @@ void Valla::addPeticion(const string img, const int tmp) {
 
 tuple<int, string, int> Valla::atenderPeticion() {
 	unique_lock<mutex> lck(mtx);
+	cout << "\t\t\tatendiendo peticion";
 	while(this->peticiones.empty())
 		espera_peticion.wait(lck);
-
+	cout << "\t\t\thay peticiones y n_libres = " << this->n_libres << endl;
 
 	while(this->n_libres == 0)
 		espera_ventana.wait(lck);
-
+	cout << "\t\t\tatendiendo n_libres =" << this->n_libres << endl;
 	int n_ventana;
 	for(int i = 0; i < MAX_VENTANAS; ++i){
 		if(this->ventanas_libres[i]){
