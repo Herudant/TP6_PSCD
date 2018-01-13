@@ -16,9 +16,10 @@ Valla::Valla() {
 	this -> num_imagenes = 0;
 	this -> n_libres = MAX_VENTANAS;
 	this -> fin_servicio = false;
-	for(auto i : this->ventanas_libres){
-		i = true;
+	for (int i = 0; i < MAX_VENTANAS; i++) {
+		this -> ventanas_libres[i] = true;
 	}
+
 }
 
 void Valla::addPeticion(const string img, const int tmp) {
