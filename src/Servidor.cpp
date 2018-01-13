@@ -40,7 +40,7 @@ void administrador(int fd, Socket& socket, Subasta& subasta, Valla& valla);
 
 // Imprime una imagen en una ventana durante un tiempo
 void printImage(const string ruta, time_t tiempo, int n_valla,
-							  cimg_library::CImgDisplay& v);
+							  cimg_library::CImgDisplay& v, Valla& valla);
 
 // Captura señal de interrupcion para evitar cerrar el servidor
 void handler(int n);
@@ -328,13 +328,13 @@ void gestor_valla(Valla& valla)
 			#ifdef VERBOSE
 				cout << "Modificando valla 0\n";
 			#endif
-			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_0));
+			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_0), ref(valla));
 			t.detach();
 		} else{
 			#ifdef VERBOSE
 				cout << "Modificando valla 1\n";
 			#endif
-			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_1));
+			thread t (&printImage, ruta, n_valla, tiempo, ref(valla_1), ref(valla));
 			t.detach();
 		}
 
@@ -344,7 +344,7 @@ void gestor_valla(Valla& valla)
 
 // Imprime una imagen en una ventana durante un tiempo
 void printImage(const string ruta, time_t tiempo, int n_valla,
-	 							cimg_library::CImgDisplay& v)
+	 							cimg_library::CImgDisplay& v, Valla& valla)
 {
 	char rutaIMG[100];
 	strcpy(rutaIMG, ruta.c_str());
