@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
 		cout << "||| Puja activa ||| ==> Precio de subasta: " << respuesta.at(0)
 		     << "  --- Tiempo subastado: " << respuesta.at(1) << endl;
-		cout << "Escribir 'PASAR SUBASTA' para no participar\n";
+		cout << "Escribir 'EOB' para no participar\n";
 
 		out = false;
 		fin = false;
