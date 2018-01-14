@@ -41,13 +41,22 @@ NIP				Actividad											Tiempo		Dia
 			    c�digo completo
 
 728502	  Puesta a punto y creaci�n			2h				5
-	    		de ficheros de texto
+	    		de ficheros de texto (1)
 
 718743	  Puesta a punto y creaci�n			2h				5
-	    		de ficheros de texto
+	    		de ficheros de texto (1)
 
 719378	  Puesta a punto y creaci�n			2h				5
-	    		de ficheros de texto
+	    		de ficheros de texto (1)
+
+728502	  Puesta a punto y creaci�n			6h				6
+					de ficheros de texto (2)
+
+718743	  Puesta a punto y creaci�n			6h				6
+					de ficheros de texto (2)
+
+719378	  Puesta a punto y creaci�n			6h				6
+					de ficheros de texto (2)
 
 
-TOTAL																		47 HORAS
+TOTAL																		65 HORAS
