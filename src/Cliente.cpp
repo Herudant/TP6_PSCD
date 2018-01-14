@@ -40,7 +40,7 @@ string getLine_puja();
 
 /*--------------- Variables globales del sistema  ----------------------------*/
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
-const string MENS_FIN("EOF");  			// End of Service
+const string MENS_FIN("EOS");  			// End of Service
 const string MENS_FIN_PUJA("EOB");  // End of Bid
 /*----------------------------------------------------------------------------*/
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   int SERVER_PORT = atoi(argv[2]);
 	string URL = argv[3];
   bool AUTO = false;
-  if(argc == 5){
+  if(argc == 5 && strcmp(argv[4], "auto") == 0){
     AUTO = true;
   }
 
@@ -91,6 +91,7 @@ int main(int argc, char *argv[]) {
 
 
   bool fin, out;
+	int num_subastas = 0; //subastas en las que ha participado el cliente
 
   // Hacemos las peticiones
 	do{
@@ -112,7 +113,12 @@ int main(int argc, char *argv[]) {
 		fin = false;
 		while(!out){
 			//se envia una puja
-			mensaje = (AUTO) ? (to_string(rand() % 200 + 5)) : getLine_puja();
+			if (num_subastas == 3) {
+				mensaje = (AUTO) ? (MENS_FIN) : getLine_puja();
+			}
+			else {
+				mensaje = (AUTO) ? (to_string(rand() % 200 + 5)) : getLine_puja();
+			}
 			send_msg(socket_fd, socket, mensaje);
 
 			if(mensaje == MENS_FIN_PUJA){
@@ -144,7 +150,7 @@ int main(int argc, char *argv[]) {
 					     << "Precio actual de la subasta: " << precio << endl;
 
 					if(AUTO){
-						int tiempo_subasta = 3;
+						int tiempo_subasta = rand() % 3 + 4;
 						this_thread::sleep_for(chrono::milliseconds(tiempo_subasta*1000));
 					}
 				}
@@ -190,6 +196,7 @@ int main(int argc, char *argv[]) {
 		if (!ganador){
 			cout << "Lo sentimos, ha perdido la subasta, suerte en la siguiente\n";
 		}
+		++num_subastas;
 	} while(!fin);
 
   // Cerramos el socket
@@ -223,10 +230,25 @@ vector<string> decodificar(string mensaje, const char separador){
 
 string getLine_puja(){
 	string ret;
-
-	cout << "Puja... > ";
-	getline(cin, ret);
-
+	int n;
+	bool correcto = false;
+	 while (!correcto){
+		cout << "Puja... > ";
+		getline(cin, ret);
+		if (ret != MENS_FIN && ret != MENS_FIN_PUJA){
+			n = atoi(ret.c_str());
+			if (n>0)
+				correcto = true;
+		}
+		else
+			correcto = true;
+		if (!correcto){
+			cout << "Puja no válida, por favor introduzca:\n"
+					 <<"\t" << MENS_FIN << " para finalizar el programa\n"
+					 <<"\t" << MENS_FIN_PUJA << " para no pujar y esperar otra subasta\n"
+					 <<"\tO un numero entero para pujar\n";
+		}
+	}
 	return ret;
 }
 

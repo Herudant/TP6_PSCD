@@ -59,7 +59,7 @@ const int MAX_SUBASTAS = 10;	 		  // numero máximo de subastas del servicio
 const int _WIDTH = 800;						  // limites de la valla
 const int _HEIGHT = 800;
 
-const string MENS_FIN("EOF");  			// End of Service
+const string MENS_FIN("EOS");  			// End of Service
 const string MENS_FIN_PUJA("EOB");  // End of Bid
 const string MENS_HISTORICO("PRINTH");
 const string MENS_ESTADO("PRINTS");
@@ -448,8 +448,8 @@ void subastador(Subasta& subasta)
 	cout << "Servidor preparado, cuando desee comenzar escriba 'START'\n";
 	subasta.dormirLider();
 	while(!FIN_SERVICIO && subasta.maxSubastas(MAX_SUBASTAS)){
-		int precio_subasta = rand() % 200 + 5;
-		int tiempo_subasta = 2;
+		int precio_subasta = rand() % 200 + 50;
+		int tiempo_subasta = rand() % 20 + 20;
 		#ifdef VERBOSE
 			cout << "INICIANDO SUBASTA(" << to_string(subasta.getNum_subastas()) << "): " << precio_subasta << "€, "
 				   << tiempo_subasta << " segundos.\n";
@@ -457,7 +457,7 @@ void subastador(Subasta& subasta)
 
 		subasta.iniciarSubasta(precio_subasta, tiempo_subasta);
 
-		int duracion_subasta = 3;
+		int duracion_subasta = rand() % 20 + 20;
 		this_thread::sleep_for(chrono::milliseconds(duracion_subasta *1000));
 
 		#ifdef VERBOSE
