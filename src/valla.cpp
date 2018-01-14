@@ -1,5 +1,5 @@
 //============================================================================
-// Name        :
+// Name        : valla.cpp
 // Author      :
 // Description :
 //============================================================================
@@ -8,6 +8,9 @@
 
 using namespace std;
 
+/*
+ * Constructor Valla
+ */
 Valla::Valla() {
 	this -> tiempoEspera = 0;
 	this -> num_peticiones = 0;
@@ -21,7 +24,10 @@ Valla::Valla() {
 	}
 
 }
-
+/*
+ * Añade una peticion a la valla mediante la direccion de la imagen a mostrar,
+ *  img, y su tiempo a mostrar, tmp
+ */
 void Valla::addPeticion(const string img, const int tmp) {
 	unique_lock<mutex> lck(mtx);
 
@@ -45,7 +51,10 @@ void Valla::addPeticion(const string img, const int tmp) {
 	}
 
 }
-
+/*
+ * Devuelve el numero de ventana y la peticion del proceso de atender a un
+ *  cliente.
+ */
 tuple<int, string, int> Valla::atenderPeticion() {
 	unique_lock<mutex> lck(mtx);
 	cout << "\t\t\tatendiendo peticion";
@@ -76,7 +85,9 @@ tuple<int, string, int> Valla::atenderPeticion() {
 	return ret;
 
 }
-
+/*
+ * Finaliza la peticion de la valla y actualiza los datos generales de la Valla
+ */
 void Valla::finPeticion(const int tmp, const int n_ventana) {
 	unique_lock<mutex> lck(mtx);
 	this -> ventanas_libres[n_ventana] = true;
@@ -89,7 +100,9 @@ void Valla::finPeticion(const int tmp, const int n_ventana) {
 		espera_fin.notify_one();
 	}
 }
-
+/*
+ * Proceso que cierra el servicio de las vallas
+ */
 void Valla::cerrarServicio(){
 	unique_lock<mutex> lck(mtx);
 	this -> fin_servicio = true;
