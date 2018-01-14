@@ -19,6 +19,7 @@ CC = g++ # Comando de compilacion
 
 SRC=src
 BIN=bin
+IMGS=imgs
 CLIENT=Cliente
 SERVER=Servidor
 SOURCES=$(wildcard $(SRC)/*.cpp)									#añade todos los nombres que terminan en .cpp
@@ -76,6 +77,7 @@ echo:
 #Crear la carpeta
 folder:
 	@mkdir -p $(BIN)
+	@mkdir -p $(IMGS)
 
 #limpieza
 clean:
