@@ -22,7 +22,7 @@
 #include "CImg.hpp"
 #include "ImageDownloader.hpp"
 
-#define VERBOSE
+//#define VERBOSE
 
 using namespace std;
 /*----------------------------------------------------------------------------*/
