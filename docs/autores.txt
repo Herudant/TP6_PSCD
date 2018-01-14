@@ -1,8 +1,8 @@
-NIP 	Apellidos 		Nombre
+NIP 		Apellidos 				Nombre
 ------------------------------------------
-728502 	Alonso Monge		Eduardo
+728502 	Alonso Monge			Eduardo
 718743 	Careras Aguerri 	Pablo Noel
-719378 	Bentue Blanco		Miguel
+719378 	Bentue Blanco			Miguel
 
 
 Resumen de tiempo invertido
@@ -59,4 +59,4 @@ NIP				Actividad											Tiempo		Dia
 					de ficheros de texto (2)
 
 
-TOTAL																		65 HORAS
+TOTAL																		53 HORAS
