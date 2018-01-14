@@ -1,8 +1,11 @@
 //============================================================================
-// Name        : .h
-// Author      :
-// Description :
+// File: subasta.hpp
+// Authors:	Alonso Monge Eduardo
+//					Bentue Blanco Miguel
+//					Carreras Aguerri Pablo Noel
+// Date:	Enero 2018
 //============================================================================
+
 
 #ifndef SUBASTA_H_
 #define SUBASTA_H_
