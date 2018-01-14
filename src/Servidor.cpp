@@ -1,7 +1,9 @@
 //*****************************************************************
 // File:   Servidor.cpp
-// Author:
-// Date:
+// Authors:	Alonso Monge Eduardo
+//					Bentue Blanco Miguel
+//					Carreras Aguerri Pablo Noel
+// Date:	Enero 2018
 //*****************************************************************
 
 

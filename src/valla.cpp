@@ -1,9 +1,10 @@
 //============================================================================
-// Name        :
-// Author      :
-// Description :
+// File: valla.cpp
+// Authors:	Alonso Monge Eduardo
+//					Bentue Blanco Miguel
+//					Carreras Aguerri Pablo Noel
+// Date:	Enero 2018
 //============================================================================
-
 #include "valla.hpp"
 
 using namespace std;
