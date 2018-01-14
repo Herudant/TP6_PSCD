@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	if(argc != 2){
 		cout << "Error:  Se esperaba ./Servidor Puerto\n";
 		exit(1);
-	}8iik
+	}
 
 	// Puerto donde escucha el proceso servidor
   int SERVER_PORT = atoi(argv[1]);
