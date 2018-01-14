@@ -60,6 +60,8 @@ void Subasta::cerrarSubasta(){
   this -> num_subastas++;
   espera.notify_all();
 
+  //si hay un ganador, se debe esperar a que este comunique que ha terminado con
+  //sus tramites de ganador
   while(this -> ganador_pendiente && this -> id_ganador != -1){
     espera_ganador.wait(lck);
   }
@@ -70,6 +72,7 @@ void Subasta::cerrarSubasta(){
  */
 void Subasta::cerrarServicio(){
   unique_lock<mutex> lck(mtx);
+  //espera a que acabe la ultima subasta en curso si la hay
   if( this -> activa )
     espera.wait(lck);
   this -> fin_servicio = true;
@@ -79,6 +82,7 @@ void Subasta::cerrarServicio(){
  */
 int Subasta::entrarSubasta(const int i){
   unique_lock<mutex> lck(mtx);
+  //mientras que tu subasa no este activa
   while(!activa || i != this->num_subastas){
     espera.wait(lck);
   }
@@ -92,10 +96,10 @@ int Subasta::entrarSubasta(const int i){
 int Subasta::pujar(const int id, const int precio){
   unique_lock<mutex> lck(mtx);
   if(activa){
-    if(precio > precio_subasta){
+    if(precio > precio_subasta){ //ha superado la puja mas alta
       this -> id_ganador = id;
       this -> precio_subasta = precio;
-        espera.notify_one();
+        espera.notify_one(); //notificas al anterior ganador
     }
   }
   return (id != id_ganador) ? this -> precio_subasta : -1;

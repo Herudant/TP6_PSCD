@@ -1,19 +1,15 @@
 //============================================================================
-<<<<<<< HEAD
-// Name        : valla.cpp
-// Author      :
-// Description :
-=======
 // File: valla.cpp
 // Authors:	Alonso Monge Eduardo
 //					Bentue Blanco Miguel
 //					Carreras Aguerri Pablo Noel
 // Date:	Enero 2018
->>>>>>> 6a94e4a8885119bae70c6fdebfafe8199fee1eee
 //============================================================================
 #include "valla.hpp"
 
 using namespace std;
+
+/* --------- CONSTRUCTORES ---------------------------------------------------*/
 
 /*
  * Constructor Valla
@@ -31,6 +27,9 @@ Valla::Valla() {
 	}
 
 }
+
+/* --------- FUNCIONES -------------------------------------------------------*/
+
 /*
  * Añade una peticion a la valla mediante la direccion de la imagen a mostrar,
  *  img, y su tiempo a mostrar, tmp
@@ -117,6 +116,8 @@ void Valla::cerrarServicio(){
 		espera_fin.wait(lck);
 	}
 }
+
+/* --------- GETTERS ---------------------------------------------------------*/
 
 int Valla::getNum_peticiones(){
 	return this -> num_peticiones;
