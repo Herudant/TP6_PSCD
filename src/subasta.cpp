@@ -1,7 +1,16 @@
+<<<<<<< HEAD
+//============================================================================
+// File: subasta.cpp
+// Authors:	Alonso Monge Eduardo
+//					Bentue Blanco Miguel
+//					Carreras Aguerri Pablo Noel
+// Date:	Enero 2018
+=======
 ///============================================================================
 // Name        : subasta.cpp
 // Author      :
 // Description :
+>>>>>>> 537c6a0d024bfc1c0e12fed85718fdeb2602b71d
 //============================================================================
 
 #include "subasta.hpp"
