@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	if(argc != 2){
 		cout << "Error:  Se esperaba ./Servidor Puerto\n";
 		exit(1);
-	}
+	}8iik
 
 	// Puerto donde escucha el proceso servidor
   int SERVER_PORT = atoi(argv[1]);
@@ -369,8 +369,7 @@ void printImage(const string ruta, int tiempo, int n_valla,
 	v.paint(); // Repintar nueva imagen en la valla
 }
 
-// Muestra información del sistema en un fichero de log
-// y se encarga de la terminación ordenada del servicio
+// Muestra información del sistema y se encarga de la terminación del servicio
 void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 {
 	string mensaje;
@@ -401,8 +400,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 
 			cout << "Bye bye" << endl;
 			exit(1);
-
-			break;
 		}
 		else if (mensaje == MENS_HISTORICO){
 			// Mostrar información histórica del sistema (num imagenes y tiempo)
@@ -412,7 +409,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 << "\n\tNumero de imagenes mostradas: " << to_string(num_imagenes)
 					 <<	"\n\tTiempo de imagenes mostradas: " << to_string(tiempo_imagenes)
 			     << "\n---------------------------------------------------------------\n";
-			//valla.write(msg, ref(fs));
 		}
 		else if (mensaje == MENS_ESTADO){
 			// Mostrar información del estado del sistema (num peticiones y tiempo contratado)
@@ -424,7 +420,6 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 					 <<"\n\tTiempo contrado      : " << to_string(tiempo_contratado)
 					 <<"\n\tTiempo total         : " << to_string(tiempo_total)
 					 <<	"\n---------------------------------------------------------------\n";
-			//valla.write(msg, ref(fs));
 		}
 		else if (mensaje == MENS_INICIO && !empezado) {
 			cout << "Mensaje de inicio 'START' recibido, empezando las subastas\n";
@@ -435,8 +430,8 @@ void administrador(int socketfd, Socket& socket, Subasta& subasta, Valla& valla)
 			cout << "ERROR: LAS PETICIONES DICPONIBLES SON LAS SIGUIENTES:"
 					 << "\n\t1. " << MENS_INICIO << "(solo una vez al inicio)"
 					 << "\n\t2. " << MENS_FIN
-					 << "\n\t2. " << MENS_HISTORICO
-					 << "\n\t3. " << MENS_ESTADO << endl;
+					 << "\n\t3. " << MENS_HISTORICO
+					 << "\n\t4. " << MENS_ESTADO << endl;
 		}
 	}
 
