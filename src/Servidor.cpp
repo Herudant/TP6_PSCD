@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 	cout << "EMPEZANDO\n";
 	#endif
 	if(argc != 2){
-		cout << "Error:  Se esperaba ./Servidor Puerto\n";
+		cout << "Error:  Se esperaba ./Servidor <Puerto>\n";
 		exit(1);
 	}
 
@@ -219,8 +219,8 @@ void dispatcher(int client_fd, Socket& socket, Subasta& subasta,
 				if (!subasta.getActiva() || subasta.getNum_subastas() != num_subasta) {
 					#ifdef VERBOSE
 					cout << "subastas: "<< subasta.getNum_subastas()
-							 << "y el cliente esta en subasta: " << num_subasta
-							 << ", ademas la subasta activa? " << subasta.getActiva() << endl;
+							 << "  y el cliente esta en subasta: " << num_subasta
+							 << "  subasta activa? " << subasta.getActiva() << endl;
 					#endif
 					resp = "SUBASTA_CERRADA#-1";
 					send_msg(client_fd, ref(socket), resp);
@@ -356,13 +356,10 @@ void printImage(const string ruta, int tiempo, int n_valla,
 	v.render(img_sec.resize(_WIDTH, _HEIGHT));
 	v.paint(); // Repintar nueva imagen en la valla
 	if(tiempo > 0){
-		cout << "DURMIENDO THREAD...\n";
 		this_thread::sleep_for(chrono::milliseconds(tiempo*1000));
-		cout << "DESPIERTO THREAD...\n";
 		valla.finPeticion(tiempo, n_valla);
 	}
 
-	cout << "MOSTRANDO POR DEFECTO...\n";
   // Mostramos valla por defecto
 	cimg_library::CImg<unsigned char> img_("imgs/default.jpg");
 	v.render(img_.resize(_WIDTH, _HEIGHT));
