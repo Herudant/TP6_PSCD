@@ -1,15 +1,24 @@
+<<<<<<< HEAD
 //============================================================================
 // File: subasta.cpp
 // Authors:	Alonso Monge Eduardo
 //					Bentue Blanco Miguel
 //					Carreras Aguerri Pablo Noel
 // Date:	Enero 2018
+=======
+///============================================================================
+// Name        : subasta.cpp
+// Author      :
+// Description :
+>>>>>>> 537c6a0d024bfc1c0e12fed85718fdeb2602b71d
 //============================================================================
 
 #include "subasta.hpp"
 
 using namespace std;
-
+/*
+ * Inicializa todas las variables privadas de la Subasta
+ */
 Subasta::Subasta(){
   this -> activa = false;
   this -> fin_servicio = false;
@@ -22,7 +31,7 @@ Subasta::Subasta(){
 
 
 /*
- *
+ * Inicia la subasta con un precio y un tiempo
  */
 void Subasta::iniciarSubasta(const int precio, const int tiempo){
   unique_lock<mutex> lck(mtx);
@@ -34,13 +43,17 @@ void Subasta::iniciarSubasta(const int precio, const int tiempo){
     espera.notify_all();
   }
 }
-
+/*
+ * Despierta la subasta
+ */
 void Subasta::despertar(){
   unique_lock<mutex> lck(mtx);
   espera.notify_one();
 }
 
-
+/*
+ * Cierra la subasta mediante sus variables privadas
+ */
 void Subasta::cerrarSubasta(){
   unique_lock<mutex> lck(mtx);
   this -> activa = false;
@@ -54,7 +67,9 @@ void Subasta::cerrarSubasta(){
   }
   this -> ganador_pendiente = true;
 }
-
+/*
+ * Cierra el servicio de Subasta
+ */
 void Subasta::cerrarServicio(){
   unique_lock<mutex> lck(mtx);
   if( this -> activa )
@@ -62,7 +77,7 @@ void Subasta::cerrarServicio(){
   this -> fin_servicio = true;
 }
 /*
- *
+ * Entra en la subasta
  */
 int Subasta::entrarSubasta(const int i){
   unique_lock<mutex> lck(mtx);
@@ -73,7 +88,8 @@ int Subasta::entrarSubasta(const int i){
 }
 
 /*
- *
+ * El cliente identificado con su id, y su puja, precio, realiza una puja
+ *  en la Subasta
  */
 int Subasta::pujar(const int id, const int precio){
   unique_lock<mutex> lck(mtx);
@@ -86,39 +102,46 @@ int Subasta::pujar(const int id, const int precio){
   }
   return (id != id_ganador) ? this -> precio_subasta : -1;
 }
-
+/*
+ * Bloquea al cliente que haya realizado la puja más alta en ese momento
+ */
 void Subasta::dormirLider(){
   unique_lock<mutex> lck(mtx);
   espera.wait(lck);
 }
-
+/*
+ * Avisa al Subastador
+ */
 void Subasta::avisarSubastador(){
   unique_lock<mutex> lck(mtx);
   ganador_pendiente = false;
   espera_ganador.notify_one();
 }
 
-
+/*
+ * Devuelve true si y solo si max es mayor o igual que el numero de subastas
+ * realizadas por el momento
+ */
 bool Subasta::maxSubastas(const int max){
   unique_lock<mutex> lck(mtx);
   return (max >= this -> num_subastas);
 }
 /*
- *
+ * Devuelve el precio maximo por el que va la subasta
  */
 int Subasta::getPrecio_subasta(){
   unique_lock<mutex> lck(mtx);
 	return this -> precio_subasta;
 }
 /*
- *
+ * Devuelve el numero de subastas realizadas desde la inicialización
  */
 int Subasta::getNum_subastas(){
   unique_lock<mutex> lck(mtx);
 	return this -> num_subastas;
 }
 /*
- *
+ * Devuelve el tiempo que tiene el cliente para pujar en la subasta
  */
 int Subasta::getTiempo_subasta(){
   unique_lock<mutex> lck(mtx);
@@ -126,7 +149,7 @@ int Subasta::getTiempo_subasta(){
 }
 
 /*
- *
+ * Devuelve true si y solo si la subasta se encuentra activa
  */
 bool Subasta::getActiva(){
   unique_lock<mutex> lck(mtx);
