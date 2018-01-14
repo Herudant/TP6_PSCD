@@ -23,14 +23,18 @@ const int MAX_VENTANAS = 2;
 class Valla {
 
 	public:
+
+		/* --------- CONSTRUCTORES -----------------------------------------------*/
 		Valla();
+
+		/* --------- GETTERS -----------------------------------------------------*/
 		int getNum_peticiones();
 		int getNum_imagenes();
 		int getTiempo_estimado();
 		time_t getTiempo_total();
 		time_t getTiempo_imagenes_mostradas();
 
-		/* --------- Funciones ---------------------------------------------------*/
+		/* --------- FUNCIONES ---------------------------------------------------*/
 
 		// Añade una peticion {img, tmp} a la cola de peticiones
 		void addPeticion(const string img,const int tmp);
@@ -42,18 +46,19 @@ class Valla {
 		// Avisa de la finalización de la petición y libera la ventana
 		void finPeticion(const int tmp, const int n_ventana);
 
+		// Cierra el servicio y no permite atender nuevas peticiones
 		void cerrarServicio();
 
 
 
 
 	private:
+		/* ---------  ATRIBUTOS --------------------------------------------------*/
 		mutex mtx;
-		mutex mtx_write;
-		bool ventanas_libres[MAX_VENTANAS];
-		bool fin_servicio;
-		int n_libres;
-		queue<tuple<string, int>> peticiones;	// cola con tuplas {img, tiempo}
+		bool ventanas_libres[MAX_VENTANAS];			// indica el estado de cada ventana
+		bool fin_servicio;											// indica la finalización del servicio
+		int n_libres;														// nímero de ventas libre
+		queue<tuple<string, int>> peticiones;		// cola con tuplas {img, tiempo}
 		time_t tiempoEspera;
 
 		// Estadisticas

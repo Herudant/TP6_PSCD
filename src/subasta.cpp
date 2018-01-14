@@ -7,6 +7,7 @@
 #include "subasta.hpp"
 
 using namespace std;
+
 /*
  * Inicializa todas las variables privadas de la Subasta
  */
