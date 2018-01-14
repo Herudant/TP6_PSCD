@@ -94,7 +94,8 @@ int main(int argc, char *argv[]) {
 
   bool fin, out;
 	int num_subastas = 0; //subastas en las que ha participado el cliente
-	srand(time(NULL));
+	if (AUTO)
+		srand(time(NULL));
 
   // Hacemos las peticiones
 	do{
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
 				mensaje = (AUTO) ? (MENS_FIN) : getLine_puja();
 			}
 			else {
-				mensaje = (AUTO) ? (to_string(rand() % 200 + 5)) : getLine_puja();
+				mensaje = (AUTO) ? (to_string(rand() % 390 + 10)) : getLine_puja();
 			}
 			send_msg(socket_fd, socket, mensaje);
 
