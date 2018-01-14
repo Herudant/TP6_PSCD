@@ -1,24 +1,20 @@
-<<<<<<< HEAD
 //============================================================================
 // File: subasta.cpp
 // Authors:	Alonso Monge Eduardo
 //					Bentue Blanco Miguel
 //					Carreras Aguerri Pablo Noel
 // Date:	Enero 2018
-=======
-///============================================================================
-// Name        : subasta.cpp
-// Author      :
-// Description :
->>>>>>> 537c6a0d024bfc1c0e12fed85718fdeb2602b71d
 //============================================================================
 
 #include "subasta.hpp"
 
 using namespace std;
 
+//* ------- CONSTRUCTORES ----------------------------------------------------*/
+
 /*
- * Constructor Subasta
+ * (Constructor)
+ * Inicializa todas las variables privadas de la Subasta
  */
 Subasta::Subasta(){
   this -> activa = false;
@@ -30,6 +26,7 @@ Subasta::Subasta(){
   this -> ganador_pendiente = true;
 }
 
+//* ------- FUNCIONES --------------------------------------------------------*/
 
 /*
  * Inicia la subasta con un precio y un tiempo
@@ -45,7 +42,7 @@ void Subasta::iniciarSubasta(const int precio, const int tiempo){
   }
 }
 /*
- * Despierta la subasta
+ * Despierta un proceso esperanco en la variable "espera"
  */
 void Subasta::despertar(){
   unique_lock<mutex> lck(mtx);
@@ -118,6 +115,8 @@ void Subasta::avisarSubastador(){
   ganador_pendiente = false;
   espera_ganador.notify_one();
 }
+
+//* ------- GETTER -----------------------------------------------------------*/
 
 /*
  * Devuelve true si y solo si max es mayor o igual que el numero de subastas
