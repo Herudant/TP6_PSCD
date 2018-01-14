@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 
   bool fin, out;
 	int num_subastas = 0; //subastas en las que ha participado el cliente
+	srand(time(NULL));
 
   // Hacemos las peticiones
 	do{
