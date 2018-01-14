@@ -59,7 +59,7 @@ class Valla {
 		mutex mtx;
 		bool ventanas_libres[MAX_VENTANAS];			// indica el estado de cada ventana
 		bool fin_servicio;											// indica la finalización del servicio
-		int n_libres;														// nímero de ventas libre
+		int n_libres;														// número de ventanas libre
 		queue<tuple<string, int>> peticiones;		// cola con tuplas {img, tiempo}
 		time_t tiempoEspera;
 
